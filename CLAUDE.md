@@ -9,6 +9,10 @@ This is the airbearings.com site for Professional Instruments Company (Astro, ho
 - Layout and styling of a section: its component in `src/components/` (styles live in the same file).
 - Shared styles (layout, buttons, section heads, rules, figures, lists): `src/styles/global.css`. Colors and fonts: `src/styles/tokens.css`.
 
+## Preview
+
+The site is a preview on rjmarston.com while airbearings.com is live. Anywhere but airbearings.com, every page is noindexed (see `astro.config.mjs` and the README). Don't remove that until launch.
+
 ## Facts
 
 - Only use figures and claims from PI's own brochures, drawings and current site. Never invent stats, customers or quotes.

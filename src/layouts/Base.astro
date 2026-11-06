@@ -34,6 +34,8 @@ const {
   mainClass,
 } = Astro.props;
 
+// Anywhere but airbearings.com (the rjmarston.com preview, workers.dev, branch previews), keep every page out of search.
+const preview = !Astro.site?.hostname.endsWith('airbearings.com');
 const pageTitle = fullTitle ?? (title ? `${title} | ${site.shortName}` : `Air bearing spindles and slides | ${site.shortName}`);
 const shareTitle = pageTitle.split(' | ')[0];
 // Clean URLs: "/index.html" → "/", "/about.html" → "/about".
@@ -45,7 +47,7 @@ const org = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: site.name,
-  url: Astro.site?.toString(),
+  url: site.url,
   logo: new URL('/images/logo.webp', Astro.site).toString(),
   foundingDate: site.founded,
   telephone: site.phoneIntl,
@@ -70,10 +72,10 @@ const org = {
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex" />}
+    {(noindex || preview) && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    {!preview && <link rel="sitemap" href="/sitemap-index.xml" />}
     <meta name="theme-color" content="#FFFFFF" />
 
     <meta property="og:type" content={ogType} />

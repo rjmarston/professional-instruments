@@ -2,6 +2,8 @@
 export const site = {
   name: 'Professional Instruments Company',
   shortName: 'Professional Instruments',
+  // The company's real address, used in structured data even while the site is previewed elsewhere.
+  url: 'https://www.airbearings.com',
   description:
     'Professional Instruments makes the world’s most accurate air bearing spindles and slides, for millionth-inch precision, high stiffness and zero friction.',
   phone: '(952) 933-1222',

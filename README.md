@@ -46,15 +46,22 @@ Cloudflare builds every push to `main` (build command `npm run build`, output di
 
 One-time setup: in Cloudflare, create a Worker from this GitHub repository (Workers & Pages → Create → Import a repository). It picks up `wrangler.jsonc`.
 
-## Domain
+## Domain and search
 
-airbearings.com still runs on Google Sites, so this site lives on its workers.dev address for now. To switch:
+For now the site is a preview for PI at **https://rjmarston.com** (and www), set in `wrangler.jsonc` and `astro.config.mjs`. airbearings.com still runs on Google Sites, so the preview is kept out of search:
 
-1. Move airbearings.com's DNS to Cloudflare.
-2. Uncomment the `routes` in `wrangler.jsonc` and push.
+- Every page carries `<meta name="robots" content="noindex, nofollow">`.
+- Cloudflare sends `X-Robots-Tag: noindex, nofollow` with every file, images included (a `_headers` file written at build).
+- `robots.txt` lets crawlers in, so they can see the noindex, and there's no sitemap.
+- Canonical URLs and share cards point at rjmarston.com, so links sent to PI preview properly. The company's structured data still names airbearings.com.
+
+rjmarston.com has to be in the same Cloudflare account for the custom domains to attach. If it already has DNS records for the apex or www, remove them first.
+
+### At launch
+
+1. In `astro.config.mjs`, set `SITE_URL` to `https://www.airbearings.com`. That alone removes the noindex tags and header and brings back the sitemap.
+2. In `wrangler.jsonc`, swap the rjmarston.com routes for airbearings.com and www.airbearings.com (after moving airbearings.com's DNS to Cloudflare).
 3. Redirect the old Google Sites URLs and shared PDF links to their new homes (the content inventory lists every old URL).
-
-Canonical URLs, the sitemap and share cards already use `https://www.airbearings.com` (set in `astro.config.mjs`).
 
 ## Not done yet
 
