@@ -1,4 +1,4 @@
-// Cloudflare settings: serve the built site in dist/ as static files.
+// Cloudflare settings: build the site, then serve dist/ as static files.
 {
   "name": "professional-instruments",
   "compatibility_date": "2026-10-01",
@@ -14,6 +14,8 @@
   "preview_urls": true,
   // Settings for branch previews (npx wrangler preview). Empty: previews use the same static site.
   "previews": {},
+  // Wrangler builds the site before every deploy, so Cloudflare's own build command can stay blank.
+  "build": { "command": "npm run build" },
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",

@@ -42,7 +42,7 @@ npm run check    # type-check the Astro files
 
 ## Deploying
 
-Cloudflare builds every push to `main` (build command `npm run build`, output directory `dist`). Other branches get preview links. Settings are in `wrangler.jsonc`.
+Cloudflare deploys every push to `main` with `npx wrangler deploy`. Wrangler runs `npm run build` first (the `build` setting in `wrangler.jsonc`) and uploads `dist`, so the build command in Cloudflare's settings can stay blank. Other branches get preview links. Settings are in `wrangler.jsonc`.
 
 One-time setup: in Cloudflare, create a Worker from this GitHub repository (Workers & Pages → Create → Import a repository). It picks up `wrangler.jsonc`.
 
