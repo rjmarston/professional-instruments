@@ -1,0 +1,22 @@
+---
+// Two-part button: label cell, hairline divider, square arrow cell.
+// kind: 'red' for the main action on a screen, 'line' for everything else.
+import Arrow from './Arrow.astro';
+
+interface Props {
+  label: string;
+  href?: string;
+  kind?: 'red' | 'line';
+  small?: boolean;
+  submit?: boolean;
+  [attr: string]: unknown;
+}
+const { label, href = '#', kind = 'red', small = false, submit = false, ...rest } = Astro.props;
+const cls = `btn btn-${kind}${small ? ' btn-sm' : ''}`;
+---
+
+{submit ? (
+  <button type="submit" class={cls} {...rest}><span class="btn-l">{label}</span><span class="btn-i" aria-hidden="true"><Arrow /></span></button>
+) : (
+  <a href={href} class={cls} {...rest}><span class="btn-l">{label}</span><span class="btn-i" aria-hidden="true"><Arrow /></span></a>
+)}

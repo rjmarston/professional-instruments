@@ -1,0 +1,14 @@
+---
+// Section heading: title left, short intro right, a rule underneath that draws in from the right.
+interface Props { id: string; title: string; intro?: string }
+const { id, title, intro } = Astro.props;
+---
+
+<div class="sh reveal">
+  <div class="sh-row">
+    <h2 id={id} set:html={title} />
+    {intro && <p>{intro}</p>}
+    <slot />
+  </div>
+  <span class="sh-rule" aria-hidden="true"></span>
+</div>

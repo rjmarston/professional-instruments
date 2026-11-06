@@ -1,0 +1,415 @@
+---
+// The product wheel. A sticky stage where a bolt-circle plate turns behind the copy, one station per
+// product line. In the hero it starts small with the 4R at its center (or on the drawing sheet, with
+// callouts), then grows and moves into place as you scroll. Motion follows the scroll only.
+import Button from '../Button.astro';
+import WheelPlate from './WheelPlate.astro';
+import { productLines, hero } from '../../data/home';
+import { modelHref } from '../../data/products';
+
+const lines = productLines.lines;
+const chipHref = (c: string) => (c === 'Attachments' || c === 'GF-5 Flatstones' ? '/products#accessories' : modelHref(c));
+---
+
+<section id="products" class="scene" aria-label={productLines.title}>
+  <div class="stage">
+    <div class="wheel on-load" aria-hidden="true">
+      <div class="plate"><WheelPlate /></div>
+      {lines.map((l) => (
+        <div class="item" aria-hidden="true"><img src={l.image.src} alt="" width={l.image.width} height={l.image.height} decoding="async" /></div>
+      ))}
+      {lines.map((l) => (
+        <div class="tag" aria-hidden="true"><span class="tag-line"></span><span class="tag-name">{l.name}</span></div>
+      ))}
+    </div>
+    <div class="hart" aria-hidden="true" data-callouts={JSON.stringify(hero.callouts)}><svg width="1" height="1" overflow="visible"></svg></div>
+    <div class="copy wrap">
+      <div class="in">
+        <div class="copy-col">
+          <div class="scene-h"><h2>{productLines.title}</h2><span class="scene-rule" aria-hidden="true"></span></div>
+          <div class="panels-wrap">
+            <div class="panels">
+              {lines.map((l, i) => (
+                <article class:list={['panel', { 'is-active': i === 0 }]} id={`p-${l.key}`} aria-labelledby={`h-${l.key}`} inert={i !== 0} aria-hidden={i !== 0 ? 'true' : undefined}>
+                  <h3 id={`h-${l.key}`}>{l.name}</h3>
+                  <p class="desc">{l.desc}</p>
+                  <dl class="specs">{l.specs.map((s) => <div><dt>{s.value}</dt><dd>{s.label}</dd></div>)}</dl>
+                  {l.chips && (
+                    <div class="chips">
+                      {l.chips.map((c) => (
+                        <a href={chipHref(c)} class="chip">
+                          {c === l.featured && (
+                            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.5" class="dot-f"></circle><circle cx="6" cy="6" r="5.25" class="dot-r"></circle></svg>
+                          )}
+                          {c}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  {l.details && <div class="details"><Button label="View details" href={l.details} kind="line" small /></div>}
+                  {l.note && <p class="note">{l.note}</p>}
+                </article>
+              ))}
+            </div>
+            <div class="scene-cta"><Button label={productLines.cta.label} href={productLines.cta.href} /></div>
+          </div>
+          <div class="stops-w">
+            <div class="stops" role="group" aria-label="Product lines">
+              {lines.map((l, i) => (
+                <button type="button" class="stop" data-stop={i} aria-current={i === 0 ? 'true' : undefined}>
+                  <svg class="tickrow" width="100%" height="12" aria-hidden="true"><line x1="8" y1="3" x2="100%" y2="3" class="tk-minor"></line><line x1="0.5" y1="0" x2="0.5" y2="12" class="tk-major"></line></svg>
+                  <span class="stop-t"><span class="stop-dot" aria-hidden="true"></span><span class="long">{l.name}</span><span class="short">{l.short}</span></span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="scene-tail" aria-hidden="true"></div>
+
+<script>
+  type Callout = { x: number; y: number; side: number; shoulder: number; value: string; label: string };
+
+  const scene = document.getElementById('products')!;
+  const stage = scene.querySelector<HTMLElement>('.stage')!;
+  const plate = scene.querySelector<HTMLElement>('.plate')!;
+  const stations = plate.querySelector<SVGGElement>('#stations')!;
+  const items = [...scene.querySelectorAll<HTMLElement>('.item')];
+  const wheel = scene.querySelector<HTMLElement>('.wheel')!;
+  const header = document.querySelector<HTMLElement>('.site-h')!;
+  const tail = document.querySelector<HTMLElement>('.scene-tail')!;
+  const tags = [...scene.querySelectorAll<HTMLElement>('.tag')];
+  const panels = [...scene.querySelectorAll<HTMLElement>('.panel')];
+  const stopButtons = [...scene.querySelectorAll<HTMLButtonElement>('.stop')];
+  const tkN = plate.querySelector<SVGGElement>('.tk-n')!;
+  const tkH = plate.querySelector<SVGGElement>('.tk-h')!;
+  const art = scene.querySelector<HTMLElement>('.hart')!;
+  const artSvg = art.querySelector('svg')!;
+  const callouts: Callout[] = JSON.parse(art.dataset.callouts || '[]');
+  const sheet = document.querySelector<HTMLElement>('.sheet');
+  const main = document.querySelector<HTMLElement>('main')!;
+  const abButtons = [...document.querySelectorAll<HTMLButtonElement>('.hero-ab button')];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const N = items.length;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // Which hero design is showing: 'original' or 'sheet'. The A/B switch remembers the choice per visitor.
+  let V = main.classList.contains('hv-sheet') ? 'sheet' : 'original';
+  if (abButtons.length) {
+    try { const saved = localStorage.getItem('pi-hero'); if (saved === 'original' || saved === 'sheet') V = saved; } catch {}
+  }
+  const applyV = () => {
+    main.classList.remove('hv-original', 'hv-sheet');
+    main.classList.add(`hv-${V}`);
+    abButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.hero === V)));
+  };
+  applyV();
+
+  type Layout = {
+    W: number; H: number; R: number; S: number; cx: number; cy: number; base: number; dir: number; Dp: number; m: boolean;
+    intro: boolean; s0: number; hcx: number; hcy: number; v0: number; fade: number; rP: number;
+  };
+  let L = {} as Layout;
+  let top0 = 0, span = 1, cur = 0, vel = 0, target = 0, raf = 0, last = 0, eCur = 1, eTgt = 1, drawn = false;
+
+  const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
+  const smooth = (a: number, b: number, x: number) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+  function measure() {
+    const r = scene.getBoundingClientRect();
+    top0 = r.top + window.scrollY;
+    span = Math.max(1, scene.offsetHeight - stage.clientHeight);
+  }
+
+  function layout() {
+    const W = stage.clientWidth, H = stage.clientHeight, m = W < 860;
+    let R: number, S: number, cx: number, cy: number, base: number, dir: number;
+    if (!m) { R = Math.min(W * 0.36, H * 0.58); S = Math.min(H * 0.48, W * 0.28); cx = W * 0.67 + R; cy = H * 0.5; base = 180; dir = -1; }
+    else { S = Math.min(W * 0.62, H * 0.3); R = W * 0.95; cx = W / 2; cy = H * 0.25 + R; base = 270; dir = 1; }
+    // Plate size: the station rings stay inside the inner wall, the graduations clear the widest product.
+    const T = Math.hypot(R + S / 2, S / 2) + 24;
+    const Dp = Math.max((T * 1000) / 472, ((R + S * 0.55) * 1000) / 436);
+    const rp = (R * 1000) / Dp;
+    stage.classList.toggle('is-m', m);
+
+    // The hero pose: where the plate sits, how big, before you scroll.
+    const hh = header.offsetHeight, heroH = Math.max(1, top0 - hh), Rr = Dp * 0.492, sy = window.scrollY;
+    const hq = document.querySelector('.hero h1')!, hp = document.querySelector('.hero-p')!;
+    const textR = Math.max(hq.getBoundingClientRect().right, hp.getBoundingClientRect().right);
+    const left = textR + 72, avail = W - 40 - left;
+    let rH = Math.min(heroH * 0.34, avail / 2, 330);
+    let intro = !m && W >= 1100 && rH > 170, s0 = rH / Rr;
+    let hcx = Math.min(Math.max(left + rH, W * 0.69), W - 40 - rH), hcy = hh + heroH / 2;
+    let v0 = Math.min(1, (0.66 * 2 * R * s0) / S);
+    if (V === 'sheet' && sheet && sheet.offsetWidth) {
+      const a = sheet.getBoundingClientRect(), b = sheet.querySelector('.tb')!.getBoundingClientRect();
+      const x1 = left, x2 = a.right - 48, y1 = a.top + sy + 44, y2 = b.top + sy - 28;
+      rH = Math.min((y2 - y1) / 2, (x2 - x1) / 2, 330);
+      intro = !m && W >= 1100 && rH > 160; s0 = rH / Rr; hcx = (x1 + x2) / 2; hcy = (y1 + y2) / 2;
+      v0 = Math.min(1, (0.62 * 2 * R * s0) / S);
+    }
+    L = { W, H, R, S, cx, cy, base, dir, Dp, m, intro, s0, hcx, hcy, v0, fade: 0.3, rP: Rr * s0 };
+    buildCallouts();
+
+    wheel.style.transformOrigin = `${cx}px ${cy}px`;
+    tail.style.setProperty('--arc', `${Math.max(0, Math.ceil(cy + Dp * 0.492 - H + 40))}px`);
+    plate.style.width = `${Dp}px`;
+    plate.style.height = `${Dp}px`;
+    plate.style.left = `${cx - Dp / 2}px`;
+    plate.style.top = `${cy - Dp / 2}px`;
+
+    // Station rings, one per 45°, with crosshair ticks either side.
+    while (stations.firstChild) stations.removeChild(stations.firstChild);
+    const rr = (S * 0.55 * 1000) / Dp;
+    const el = (tag: string, attrs: Record<string, number | string>) => {
+      const n = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+      stations.appendChild(n);
+    };
+    el('circle', { cx: 500, cy: 500, r: rp, class: 'pl-pitch' });
+    for (let k = 0; k < 8; k++) {
+      const a = ((base + dir * 45 * k) * Math.PI) / 180, x = 500 + rp * Math.cos(a), y = 500 + rp * Math.sin(a);
+      el('circle', { cx: x, cy: y, r: rr, class: 'st-ring' });
+      el('line', { x1: x - rr - 14, x2: x - rr + 6, y1: y, y2: y, class: 'st-x' });
+      el('line', { x1: x + rr - 6, x2: x + rr + 14, y1: y, y2: y, class: 'st-x' });
+    }
+    items.forEach((it) => { it.style.width = `${S}px`; it.style.height = `${S}px`; });
+  }
+
+  // Hero B: leader lines from points on the 4R photo to its brochure figures.
+  function buildCallouts() {
+    let s = '';
+    if (V === 'sheet') {
+      const F = L.v0 * L.S;
+      for (const c of callouts) {
+        const px = -F / 2 + c.x * F, py = -0.465 * F + c.y * 0.93 * F;
+        const ex = px + c.side * 0.1 * F, ey = c.shoulder * F, ax = ex + c.side * 0.14 * F;
+        const anchor = c.side < 0 ? 'end' : 'start', tx = ax + c.side * 6;
+        s += `<polyline points="${px.toFixed(1)},${py.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)} ${ax.toFixed(1)},${ey.toFixed(1)}" class="ha-l" pathLength="1"></polyline>`
+          + `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.5" class="ha-d"></circle>`
+          + `<text x="${tx.toFixed(1)}" y="${(ey - 7).toFixed(1)}" text-anchor="${anchor}" class="ha-v">${c.value}</text>`
+          + `<text x="${tx.toFixed(1)}" y="${(ey + 16).toFixed(1)}" text-anchor="${anchor}" class="ha-k">${c.label}</text>`;
+      }
+    }
+    artSvg.innerHTML = s;
+    if (!drawn && s) { drawn = true; window.setTimeout(() => art.classList.add('drawn'), 2600); }
+  }
+
+  function setActive(i: number) {
+    panels.forEach((p, j) => {
+      const on = j === i;
+      p.classList.toggle('is-active', on);
+      p.inert = !on;
+      if (on) p.removeAttribute('aria-hidden'); else p.setAttribute('aria-hidden', 'true');
+    });
+    stopButtons.forEach((b, j) => { if (j === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+  }
+
+  function render() {
+    const { R, S, cx, cy, base, dir } = L;
+    let e = L.intro ? eCur : 1, ks = 1, sw = 1, reveal = 1, Px = cx, Py = cy, st = 0;
+    const feat = Math.round(cur);
+    if (e >= 0.9999) { e = 1; wheel.style.transform = 'none'; }
+    else {
+      st = Math.max(0, top0 - window.scrollY);
+      Px = L.hcx + (cx - L.hcx) * e; Py = L.hcy + (cy - L.hcy) * e; sw = L.s0 + (1 - L.s0) * e;
+      wheel.style.transform = `translate3d(${Px - cx}px,${Py - st - cy}px,0) scale(${sw})`;
+      ks = 1 / sw; reveal = smooth(0.6, 1, e);
+    }
+    plate.style.transform = `rotate(${-dir * 45 * cur}deg)`;
+    if (sheet) sheet.style.opacity = L.intro ? String(1 - smooth(0, 0.22, e)) : '';
+    if (e >= 1) art.style.opacity = '0';
+    else { art.style.opacity = String(1 - smooth(0, L.fade, e)); art.style.transform = `translate3d(${Px}px,${Py - st}px,0) scale(${sw / L.s0})`; }
+    // Heavier graduations while the plate is small in the hero, fine ones once it's full size.
+    const hk = L.s0 < 0.5 ? clamp(1 - e * 1.4, 0, 1) : 0;
+    tkH.style.opacity = String(hk); tkN.style.opacity = String(1 - hk);
+
+    for (let i = 0; i < N; i++) {
+      const d = i - cur, ad = Math.abs(d), a = ((base + dir * 45 * d) * Math.PI) / 180;
+      let x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
+      let sc = 1 - 0.52 * Math.min(ad, 1) - 0.16 * clamp(ad - 1, 0, 1);
+      let op = ad <= 1 ? 1 - 0.68 * ad : Math.max(0, 0.32 * (2 - ad));
+      if (e < 1) {
+        if (i === feat) {
+          // The featured product travels from the hero spot to its station.
+          const Qx = L.hcx + (x - L.hcx) * e, Qy = L.hcy + (y - L.hcy) * e;
+          x = cx + (Qx - Px) / sw; y = cy + (Qy - Py) / sw; sc = (L.v0 + (1 - L.v0) * e) / sw;
+        } else op *= reveal;
+      }
+      const it = items[i];
+      it.style.transform = `translate3d(${x - S / 2}px,${y - S / 2}px,0) scale(${sc})`;
+      it.style.opacity = String(op);
+      it.style.zIndex = String(10 - Math.round(ad * 2));
+      const t = tags[i];
+      if (L.m) t.style.transform = `translate3d(${x}px,${y + S * sc * 0.5 + 4}px,0) translateX(-50%)`;
+      else t.style.transform = `translate3d(${x + S * sc * 0.5 + 6}px,${y}px,0) translateY(-50%) scale(${ks})`;
+      t.style.opacity = L.m ? '0' : String(Math.min(ad, 1) * clamp(2 - ad, 0, 1) * reveal);
+    }
+  }
+
+  const rawT = () => clamp((window.scrollY - top0) / span, 0, 1) * (N - 1);
+  // Snap to the nearest product line once you're past halfway, with a little hysteresis.
+  const pickTarget = () => { const t = rawT(); return Math.abs(t - target) > 0.54 ? Math.round(t) : target; };
+  const introTarget = () => (!L.intro || reduce.matches ? 1 : smooth(0, 1, clamp(window.scrollY / Math.max(1, top0), 0, 1)));
+
+  // A critically damped spring carries the wheel to the target, so it settles without overshoot.
+  function tick(now: number) {
+    const ms = Math.min(48, now - last), dt = ms / 1000;
+    last = now;
+    const w = 9, steps = Math.max(1, Math.ceil(dt / 0.008)), h = dt / steps;
+    for (let k = 0; k < steps; k++) { const acc = w * w * (target - cur) - 2 * w * vel; vel += acc * h; cur += vel * h; }
+    eCur += (eTgt - eCur) * (1 - Math.exp(-ms / 90));
+    const doneC = Math.abs(target - cur) < 0.0005 && Math.abs(vel) < 0.002, doneE = Math.abs(eTgt - eCur) < 0.0005;
+    if (doneC) { cur = target; vel = 0; }
+    if (doneE) eCur = eTgt;
+    render();
+    if (doneC && doneE) { raf = 0; return; }
+    raf = requestAnimationFrame(tick);
+  }
+
+  let locked: boolean | null = null;
+  function checkLock() {
+    const l = window.scrollY >= top0 - 2;
+    if (l !== locked) { locked = l; stage.classList.toggle('is-locked', l); }
+  }
+
+  function onScroll() {
+    checkLock();
+    const ne = introTarget(), nt = pickTarget();
+    let moved = false;
+    if (ne !== eTgt) { eTgt = ne; moved = true; }
+    if (nt !== target) { target = nt; setActive(target); moved = true; }
+    if (!moved) return;
+    if (reduce.matches) { cur = target; vel = 0; eCur = eTgt; render(); return; }
+    if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+
+  function goTo(i: number) {
+    measure();
+    window.scrollTo({ top: top0 + (i / (N - 1)) * span, behavior: reduce.matches ? 'auto' : 'smooth' });
+  }
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest<HTMLElement>('[data-stop]');
+    if (!a) return;
+    e.preventDefault();
+    goTo(parseInt(a.dataset.stop || '0', 10));
+  });
+
+  function onResize() {
+    document.documentElement.style.setProperty('--hh', `${header.offsetHeight}px`);
+    measure(); layout();
+    target = Math.round(rawT()); cur = target; vel = 0;
+    eTgt = introTarget(); eCur = eTgt;
+    setActive(target); checkLock(); render();
+  }
+
+  abButtons.forEach((b) => b.addEventListener('click', () => {
+    const next = b.dataset.hero || 'original';
+    if (next === V) return;
+    V = next; applyV();
+    try { localStorage.setItem('pi-hero', V); } catch {}
+    art.classList.remove('drawn'); drawn = false;
+    if (sheet) sheet.style.opacity = '';
+    onResize();
+  }));
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize);
+  document.fonts?.ready.then(onResize);
+  onResize();
+</script>
+
+<style is:global>
+/* index bar */
+.tickrow{display:block}
+.tk-minor{stroke:var(--rule);stroke-width:6;stroke-dasharray:.5 7.5}
+.tk-major{stroke:var(--ink);stroke-width:1}
+/* scene */
+.scene{position:relative;height:460vh;height:460svh;overflow-x:clip}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:visible;-webkit-clip-path:inset(-200vh 0 -100vh 0);clip-path:inset(-200vh 0 -100vh 0)}
+.wheel{position:absolute;inset:0;pointer-events:none;will-change:transform}
+.plate{position:absolute;left:0;top:0;will-change:transform;pointer-events:none}
+.plate svg{display:block;width:100%;height:100%}
+.st-ring{fill:none;stroke:var(--hair);stroke-width:.5;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
+.st-x{stroke:var(--rule);stroke-width:.5;vector-effect:non-scaling-stroke}
+.item{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center;will-change:transform,opacity;transform-origin:50% 50%}
+.item img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.tag{position:absolute;left:0;top:0;z-index:15;transform-origin:0 50%;display:flex;flex-direction:row;align-items:center;gap:6px;pointer-events:none;white-space:nowrap}
+.tag-line{width:18px;height:.5px;background:var(--graphite)}
+.is-m .tag{flex-direction:column}
+.is-m .tag-line{width:.5px;height:16px}
+.tag-name{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--graphite);background:var(--white);padding:2px 6px}
+.copy{position:absolute;inset:0;z-index:20;padding-top:40px;padding-bottom:28px;display:flex;flex-direction:column;pointer-events:none}
+.copy .in{width:100%;height:100%;display:flex;flex-direction:column;gap:20px}
+.copy-col{width:min(520px,40vw);height:100%;display:flex;flex-direction:column;gap:20px;pointer-events:auto}
+.scene-h{position:relative;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px;padding-bottom:14px}
+.scene-h h2{margin:0;font-size:22px;line-height:1.2;font-weight:500;letter-spacing:-.015em;opacity:0;transform:translateX(16px);transition:opacity .22s ease,transform .22s ease}
+.scene-rule{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:100% 50%;transition:transform .4s cubic-bezier(.65,0,.35,1) .12s}
+/* Locked: the rule draws right to left, then the heading follows */
+.stage.is-locked .scene-rule{transform:scaleX(1);transition:transform .6s cubic-bezier(.65,0,.35,1) 0s}
+.stage.is-locked .scene-h h2{opacity:1;transform:none;transition:opacity .45s ease .42s,transform .45s cubic-bezier(.2,0,0,1) .42s}
+.panels-wrap{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:28px}
+.panels{display:grid}
+.panel{grid-area:1/1;align-self:end;min-width:0;transform:translateY(14px);opacity:0;transition:opacity .26s ease,transform .26s ease;display:flex;flex-direction:column;gap:16px}
+.panel.is-active{opacity:1;transform:none}
+.panel h3{margin:0;font-size:clamp(34px,3.9vw,56px);line-height:1.02;font-weight:500;letter-spacing:-.04em}
+.desc{margin:0;font-size:16px;line-height:1.55;color:var(--graphite);max-width:46ch}
+.specs{margin:0;border-top:.5px solid var(--hair)}
+.specs div{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:16px;padding:10px 0;border-bottom:.5px solid var(--hair);align-items:baseline}
+.specs dt{font-family:var(--mono);font-size:15px;white-space:nowrap}
+.specs dd{margin:0;font-size:14px;color:var(--graphite)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.details{display:flex}
+.chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 11px;border:.5px solid var(--rule);font-family:var(--mono);font-size:12px;text-decoration:none;white-space:nowrap;background:var(--white)}
+.chip:hover{border-color:var(--ink)}
+.dot-f{fill:var(--red)} .dot-r{fill:none;stroke:var(--red);stroke-width:.75}
+.note{margin:0;font-size:14px;line-height:1.5;color:var(--graphite)}
+.stops-w{display:flex;flex-direction:column;gap:20px}
+.scene-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
+.stops{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.stop{all:unset;cursor:pointer;display:flex;flex-direction:column;min-width:0}
+.stop-t{display:flex;align-items:center;gap:8px;padding:10px 10px 4px 0;font-size:13px;font-weight:500;color:var(--graphite);min-width:0}
+.stop-t .short{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stop-t .long{display:none}
+.stop-dot{width:7px;height:7px;border-radius:50%;border:.75px solid var(--rule);flex:none}
+.stop[aria-current="true"] .stop-t{color:var(--ink)}
+.stop[aria-current="true"] .stop-dot{background:var(--red);border-color:var(--red)}
+.stop:hover .stop-t{color:var(--ink)}
+@media (max-width:859px){
+  .copy{padding-top:0;padding-bottom:16px}
+  .copy .in{justify-content:flex-end}
+  .copy-col{width:100%;height:auto;gap:14px}
+  .scene-h{display:none}
+  .panels-wrap{flex:none;gap:16px}
+  .stops-w{gap:12px}
+  .scene-cta .btn{height:44px;font-size:14px}
+  .panel h3{font-size:32px}
+  .chips,.note{display:none}
+  .desc{font-size:15px}
+  /* the plate fades out behind the copy so its rings don't run through the text */
+  .copy-col{position:relative;z-index:0}
+  .copy-col::before{content:"";position:absolute;z-index:-1;left:-50vw;right:-50vw;top:-56px;bottom:-16px;background:linear-gradient(to bottom,rgba(255,255,255,0),var(--white) 56px);pointer-events:none}
+  .stops{grid-template-columns:repeat(4,auto)}
+  .stops .tickrow{width:0;min-width:100%}
+  .stop-t{padding-right:8px}
+}
+.tk-h{opacity:0}
+/* overlay that travels with the hero plate (callouts, axis, index mark); empty unless a hero variant fills it */
+.hart{position:absolute;left:0;top:0;width:0;height:0;z-index:12;pointer-events:none;opacity:0;will-change:transform,opacity}
+.hart svg{position:absolute;left:0;top:0;overflow:visible}
+.ha-l{fill:none;stroke:var(--ink);stroke-width:.75}
+.ha-d{fill:var(--white);stroke:var(--ink);stroke-width:1}
+.ha-v,.ha-k{paint-order:stroke;stroke:var(--white);stroke-width:5px;stroke-linejoin:round}
+.ha-v{font-family:var(--mono);font-size:13px;fill:var(--ink)}
+.ha-k{font-family:var(--sans);font-size:12px;fill:var(--graphite)}
+.hart .ha-l{stroke-dasharray:1;stroke-dashoffset:1;animation:ha-draw .9s cubic-bezier(.65,0,.35,1) .8s forwards}
+.hart .ha-d,.hart text{opacity:0;animation:fadein .7s ease 1.3s forwards}
+.hart.drawn *{animation:none;opacity:1;stroke-dashoffset:0}
+@keyframes ha-draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.hart *{animation:none!important;opacity:1!important;stroke-dashoffset:0!important}}
+@media (prefers-reduced-motion:reduce){.panel,.scene-h h2,.scene-rule,.stage.is-locked .scene-h h2,.stage.is-locked .scene-rule{transition:none}}
+.scene-tail{min-height:var(--arc,0px);overflow-x:clip}
+</style>

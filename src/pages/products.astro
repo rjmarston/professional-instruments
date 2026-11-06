@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Subnav from '../components/Subnav.astro';
+import SectionHead from '../components/SectionHead.astro';
+import FamilyHeader from '../components/products/FamilyHeader.astro';
+import SpecTable from '../components/products/SpecTable.astro';
+import TickRule from '../components/TickRule.astro';
+import ArrowLink from '../components/ArrowLink.astro';
+import Button from '../components/Button.astro';
+import { page, families, accessories, custom } from '../data/products';
+import { urls } from '../data/site';
+---
+
+<Base title={page.seoTitle} description={page.seoDescription} active="products">
+  <PageHead title={page.title} lede={page.lede} crumbs={[{ label: 'Home', href: '/' }, { label: 'Products' }]} />
+  <Subnav items={families.map((f) => ({ label: f.title, id: f.id }))} units />
+
+  {families.map((f) => (
+    <section id={f.id} class="sec anchor wrap" aria-labelledby={`${f.id}-h`}>
+      <div class="in">
+        <SectionHead id={`${f.id}-h`} title={f.title} intro={f.intro} />
+        <FamilyHeader image={f.image} facts={f.facts} text={f.text} />
+        {f.table && <SpecTable {...f.table} />}
+        {f.id === 'accessories' && (
+          <div class="acc-g">
+            <div class="mini"><TickRule /><h3>{accessories.flatstones.title}</h3><p>{accessories.flatstones.text}</p><ArrowLink label="Details" href={accessories.flatstones.href} /></div>
+            <div class="mini">
+              <TickRule /><h3>{accessories.attachments.title}</h3><p>{accessories.attachments.text}</p>
+              <ul class="lst">{accessories.attachments.list.map((a) => <li>{a}</li>)}</ul>
+              <ArrowLink label={accessories.attachments.cta} href={urls.quote} />
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  ))}
+
+  <section id="custom" class="sec band wrap" aria-labelledby="cu-h">
+    <div class="in">
+      <div class="pursuit reveal">
+        <div class="pp-top">
+          <h2 id="cu-h" class="pursuit-h">{custom.title}</h2>
+          <div class="pp-side">
+            <p class="pursuit-c">{custom.text}</p>
+            <div class="pp-a"><Button label={custom.cta.label} href={custom.cta.href} kind="line" /></div>
+          </div>
+        </div>
+        <div class="cust-f">
+          {custom.figures.map((f) => <div class="cf"><TickRule /><span class="n">{f.value}</span><span class="c">{f.label}</span></div>)}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+#blockhead{padding-top:96px}
+.acc-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:113px;row-gap:48px}
+.acc-g .lst{margin-top:6px}
+@media (max-width:860px){.acc-g{grid-template-columns:minmax(0,1fr)}}
+.cust-f{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:113px;row-gap:40px;margin-top:88px}
+@media (max-width:860px){.cust-f{grid-template-columns:minmax(0,1fr);margin-top:56px}}
+.cf{display:flex;flex-direction:column;gap:10px}
+.cf .tickrule{margin-bottom:12px}
+.cf .n{font-family:var(--mono);font-size:clamp(32px,3.6vw,52px);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.cf .c{font-size:14px;color:var(--graphite)}
+</style>

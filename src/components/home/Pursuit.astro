@@ -1,0 +1,79 @@
+---
+// "The pursuit of precision": the brand line on a light band, measured on a year scale. A red index
+// travels the scale as you scroll, counting the years. It leads to the About page.
+import Button from '../Button.astro';
+import { pursuit } from '../../data/home';
+
+const years = Array.from({ length: pursuit.to - pursuit.from + 1 }, (_, i) => pursuit.from + i);
+const pos = (y: number) => `${(((y - pursuit.from) / (pursuit.to - pursuit.from)) * 100).toFixed(3)}%`;
+---
+
+<section id="pursuit" class="sec band wrap" aria-labelledby="pp-h">
+  <div class="in">
+    <div class="pursuit reveal">
+      <div class="pp-top">
+        <h2 id="pp-h" class="pursuit-h">{pursuit.title}</h2>
+        <div class="pp-side">
+          <p class="pursuit-c">{pursuit.text}</p>
+          <div class="pp-a"><Button label={pursuit.cta.label} href={pursuit.cta.href} kind="line" /></div>
+        </div>
+      </div>
+      <div class="yr" data-from={pursuit.from} data-to={pursuit.to}>
+        <div class="yr-read" aria-hidden="true"><span class="yr-y">{pursuit.from}</span></div>
+        <svg class="yr-svg" width="100%" height="40" aria-hidden="true" overflow="visible">
+          <line x1="0" y1="0.5" x2="100%" y2="0.5" class="yr-base"></line>
+          {years.map((y) => {
+            const end = y === pursuit.from || y === pursuit.to, dec = y % 10 === 0;
+            return (
+              <>
+                <line x1={pos(y)} y1="0" x2={pos(y)} y2={end ? 18 : dec ? 12 : 6} class={end ? 'yr-end' : dec ? 'yr-dec' : 'yr-min'}></line>
+                {dec && <text x={pos(y)} y="34" text-anchor="middle" class:list={['yr-lab', { 'yr-o': Math.floor(y / 10) % 2 === 1 }]}>{y}</text>}
+              </>
+            );
+          })}
+        </svg>
+        <span class="yr-ix" aria-hidden="true"></span>
+      </div>
+      <div class="yr-ends"><span>Since {pursuit.from}</span><span>{pursuit.to}</span></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const yr = document.querySelector<HTMLElement>('#pursuit .yr');
+  if (yr) {
+    const ix = yr.querySelector<HTMLElement>('.yr-ix')!, read = yr.querySelector<HTMLElement>('.yr-read')!, label = yr.querySelector<HTMLElement>('.yr-y')!;
+    const from = Number(yr.dataset.from), to = Number(yr.dataset.to);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
+    const update = () => {
+      const r = yr.getBoundingClientRect(), vh = window.innerHeight;
+      if (r.top > vh * 1.1 || r.bottom < -vh * 0.1) return;
+      const p = reduce.matches ? 1 : clamp((vh * 0.92 - r.top) / (vh * 0.5), 0, 1), x = p * r.width;
+      // Keep the readout inside the scale at both ends.
+      const hw = label.offsetWidth / 2, rx = clamp(x, hw, r.width - hw);
+      ix.style.transform = `translateX(${x.toFixed(1)}px)`;
+      read.style.transform = `translateX(${rx.toFixed(1)}px)`;
+      label.textContent = String(from + Math.round((to - from) * p));
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+</script>
+
+<style is:global>
+.yr{position:relative;margin-top:112px}
+@media (max-width:600px){.yr-o{display:none}.yr{margin-top:88px}}
+.yr-svg{display:block;overflow:visible}
+.yr-base{stroke:var(--ink);stroke-width:1}
+.yr-min{stroke:var(--rule);stroke-width:1}
+.yr-dec{stroke:var(--graphite);stroke-width:1}
+.yr-end{stroke:var(--ink);stroke-width:1}
+.yr-lab{font-family:var(--mono);font-size:12px;fill:var(--graphite)}
+.yr-ix{position:absolute;left:0;top:-14px;width:1.5px;height:34px;margin-left:-.75px;background:var(--red);will-change:transform}
+.yr-read{position:absolute;left:0;bottom:calc(100% + 16px);will-change:transform}
+.yr-y{display:block;transform:translateX(-50%);font-family:var(--mono);font-size:13px;color:var(--red);font-variant-numeric:tabular-nums}
+.yr-ends{display:flex;justify-content:space-between;margin-top:14px;font-family:var(--mono);font-size:13px;letter-spacing:.02em}
+.yr-ends span:last-child{color:var(--graphite)}
+</style>

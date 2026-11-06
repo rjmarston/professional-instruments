@@ -1,0 +1,78 @@
+---
+// Model comparison table. On phones each model becomes a card with labelled figures.
+// A speed ending in "max" or "rated" shows that word as a small note.
+import ArrowLink from '../ArrowLink.astro';
+import Value from '../Value.astro';
+import { modelHref, type Value as V } from '../../data/products';
+
+interface Props { caption: string; heads: string[]; rows: { model: string; desc: string; values: V[]; tag?: string }[] }
+const { caption, heads, rows } = Astro.props;
+const split = (v: V): [V, string] => {
+  if (typeof v === 'string') {
+    const m = v.match(/^(.*) (max|rated)$/);
+    if (m) return [m[1], m[2]];
+  }
+  return [v, ''];
+};
+---
+
+<div class="tbl-w">
+  <table class="tbl">
+    <caption class="sr">{caption}</caption>
+    <thead><tr><th scope="col">Model</th>{heads.map((h) => <th scope="col">{h}</th>)}<th scope="col"><span class="sr">Details</span></th></tr></thead>
+    <tbody>
+      {rows.map((r) => (
+        <tr>
+          <td>
+            <div class="m">
+              <div class="m-n">
+                <a href={modelHref(r.model)}>{r.model}</a>
+                {r.tag && (
+                  <span class="tag"><svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.5" class="dot-f"></circle><circle cx="6" cy="6" r="5.25" class="dot-r"></circle></svg>{r.tag}</span>
+                )}
+              </div>
+              <span>{r.desc}</span>
+            </div>
+          </td>
+          {r.values.map((v, i) => {
+            const [value, note] = split(v);
+            return <td class="num" data-label={heads[i]}>{note ? <span><Value v={value} /> <span class="note">{note}</span></span> : <Value v={value} />}</td>;
+          })}
+          <td class="go"><ArrowLink label="Details" href={modelHref(r.model)} /></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style is:global>
+.tbl-w{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;max-width:100%}
+.tbl{width:100%;min-width:900px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tbl th{font-size:12px;font-weight:600;color:var(--graphite);text-align:left;padding:0 16px 12px 0;border-bottom:1px solid var(--ink);white-space:nowrap;vertical-align:bottom}
+.tbl td{padding:18px 16px 18px 0;border-bottom:.5px solid var(--hair);vertical-align:top}
+.tbl td.num{font-family:var(--mono);font-size:14px;white-space:nowrap}
+.tbl .m{display:flex;flex-direction:column;gap:4px}
+.tbl .m a{font-size:18px;font-weight:500;letter-spacing:-.01em;text-decoration:none}
+.tbl .m a:hover{color:var(--red)}
+.tbl .m span{font-size:13px;color:var(--graphite);max-width:30em}
+.tbl .tag{position:static;transform:none;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-left:0;font-family:var(--mono);font-size:12px;letter-spacing:.01em;color:var(--red);vertical-align:middle}
+.tbl .note{font-family:var(--sans);font-size:12px;color:var(--graphite)}
+.tbl td.go{text-align:right;white-space:nowrap}
+.tbl tr:hover td{background:var(--fog)}
+@media (max-width:860px){
+  .tbl-w{overflow:visible}
+  .tbl{min-width:0;display:block}
+  .tbl thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .tbl tbody{display:block;border-top:1px solid var(--ink)}
+  .tbl tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 16px;padding:20px 0;border-bottom:.5px solid var(--hair)}
+  .tbl tr:hover td{background:none}
+  .tbl td{display:block;padding:0;border:none}
+  .tbl td:first-child,.tbl td.go{grid-column:1/-1}
+  .tbl td.num{display:flex;flex-direction:column;gap:3px;white-space:normal}
+  .tbl td.num::before{content:attr(data-label);font-family:var(--sans);font-size:12px;color:var(--graphite)}
+  .tbl td.go{text-align:left}
+}
+.tbl .m-n{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px}
+.tbl .m-n .tag{align-self:center}
+.dot-f{fill:var(--red)} .dot-r{fill:none;stroke:var(--red);stroke-width:.75}
+</style>

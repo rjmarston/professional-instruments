@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import PlateArc from '../components/PlateArc.astro';
+---
+
+<Base title="Page not found" noindex cta={false}>
+  <section class="ph lost wrap" aria-labelledby="ph-h">
+    <PlateArc class="turn-arc" />
+    <div class="in">
+      <h1 id="ph-h">This page is out of tolerance.</h1>
+      <p class="lede">It may have moved, or it never existed. The homepage and the spindle overview are good places to start.</p>
+      <div class="lost-a">
+        <Button label="Go to the homepage" href="/" />
+        <Button label="View all spindles" href="/products" kind="line" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+.ph{position:relative;overflow:hidden}
+.ph .in{position:relative;z-index:1;padding-block:40px 120px;display:flex;flex-direction:column}
+.ph h1{margin:72px 0 0;max-width:12em;font-size:clamp(44px,5.2vw,76px);line-height:1.02;font-weight:500;letter-spacing:-.04em;animation:rise .9s cubic-bezier(.2,0,0,1) .1s both}
+.ph .lede{margin:32px 0 0;max-width:30em;font-size:clamp(18px,1.45vw,21px);line-height:1.55;color:var(--graphite);animation:rise .9s cubic-bezier(.2,0,0,1) .24s both}
+.ph .turn-arc{position:absolute;top:40px;right:max(32px,calc((100% - 1360px)/2));height:calc(100% - 80px);width:auto;aspect-ratio:1/1;pointer-events:none;opacity:.9;will-change:transform}
+@media (min-width:1200px){.ph .turn-arc{right:max(40px,calc((100% - 1360px)/2))}}
+@media (max-width:1100px){.ph .turn-arc{opacity:.45}}
+@media (max-width:860px){.ph .turn-arc{top:16px;right:16px;height:88px;opacity:.8}.ph .in{padding-bottom:40px}.ph h1{margin-top:48px}}
+@media (prefers-reduced-motion:reduce){.ph h1,.ph .lede{animation:none}}
+.lost .in{padding-bottom:160px}
+.lost-a{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
+</style>

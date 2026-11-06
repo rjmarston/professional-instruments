@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import ProductWheel from '../components/home/ProductWheel.astro';
+import Services from '../components/home/Services.astro';
+import Applications from '../components/home/Applications.astro';
+import Pursuit from '../components/home/Pursuit.astro';
+import Resources from '../components/home/Resources.astro';
+import { hero } from '../data/site';
+---
+
+<Base fullTitle="Air bearing spindles and slides | Professional Instruments" mainClass={`hv-${hero.default}`}>
+  <Hero />
+  <ProductWheel />
+  <Services />
+  <Applications />
+  <Pursuit />
+  <Resources />
+</Base>

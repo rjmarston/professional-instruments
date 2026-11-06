@@ -1,0 +1,218 @@
+---
+// Site header. Each menu label goes to its page; the arrow beside it opens a list of sections.
+// With a mouse, hovering opens the list too. Below 1080px everything folds into a full-height menu.
+import { menus, site, urls } from '../data/site';
+import Button from './Button.astro';
+import ArrowLink from './ArrowLink.astro';
+
+interface Props { active?: string }
+const { active = '' } = Astro.props;
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+---
+
+<header class="site-h wrap">
+  <div class="in">
+    <a href="/" aria-label="Professional Instruments Company home"><img src="/images/logo.webp" alt="Professional Instruments Company" width="118" height="60" /></a>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul class="nv-l">
+        {menus.map((m) => (
+          <li class="nv">
+            <div class="nv-h">
+              <a class:list={['nv-b', { 'is-cur': m.key === active }]} href={m.href} aria-current={path === m.href ? 'page' : undefined}>{m.label}</a>
+              <button type="button" class="nv-t" aria-expanded="false" aria-controls={`m-${m.key}`} aria-label={`${m.label} menu`}>
+                <svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><polyline points="0.5,0.5 4.5,4.5 8.5,0.5" class="chev"></polyline></svg>
+              </button>
+            </div>
+            <div class="nv-p" id={`m-${m.key}`} hidden>
+              <ul>
+                {m.items.map((i) => (
+                  <li><a href={i.href}><span class="nv-n">{i.name}</span>{i.detail && <span class="nv-d">{i.detail}</span>}</a></li>
+                ))}
+              </ul>
+              {m.more && <ArrowLink label={m.more.label} href={m.more.href} />}
+            </div>
+          </li>
+        ))}
+        <li class="nv"><a class:list={['nv-b', { 'is-cur': active === 'contact' }]} href={urls.contact} aria-current={path === urls.contact ? 'page' : undefined}>Contact</a></li>
+      </ul>
+      <div class="nv-foot"><span>{site.phone}</span><span>{site.email}</span></div>
+    </nav>
+    <div class="act">
+      <span class="tel">{site.phone}</span>
+      <Button label="Request a quote" href={urls.quote} small />
+      <button type="button" class="menu-b" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const h = document.querySelector<HTMLElement>('.site-h')!;
+  const nav = h.querySelector<HTMLElement>('.site-nav')!;
+  const mb = h.querySelector<HTMLButtonElement>('.menu-b')!;
+  const root = document.documentElement;
+  const items = [...h.querySelectorAll<HTMLElement>('.nv')].filter((li) => li.querySelector('.nv-p'));
+  const narrow = window.matchMedia('(max-width: 1080px)');
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+  let openLi: HTMLElement | null = null;
+  let how = '';
+  let hideT = 0;
+
+  const panel = (li: HTMLElement) => li.querySelector<HTMLElement>('.nv-p')!;
+  const toggle = (li: HTMLElement) => li.querySelector<HTMLButtonElement>('.nv-t')!;
+
+  // Hang the panel from the bottom of the header, and keep it on screen.
+  function place(li: HTMLElement) {
+    const p = panel(li);
+    p.style.top = '';
+    p.style.left = '';
+    if (narrow.matches) return;
+    p.style.top = `${h.getBoundingClientRect().bottom - li.getBoundingClientRect().top - 0.5}px`;
+    const over = p.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+    if (over > 0) p.style.left = `${-20 - over}px`;
+  }
+  function set(li: HTMLElement, on: boolean) {
+    toggle(li).setAttribute('aria-expanded', String(on));
+    li.classList.toggle('open', on);
+    panel(li).hidden = !on;
+    if (on) place(li);
+  }
+  function open(li: HTMLElement, via: string) {
+    clearTimeout(hideT);
+    if (openLi && openLi !== li && !narrow.matches) set(openLi, false);
+    set(li, true);
+    openLi = li;
+    how = via;
+  }
+  function close(li: HTMLElement, focus = false) {
+    set(li, false);
+    if (openLi === li) openLi = null;
+    if (focus) toggle(li).focus();
+  }
+
+  items.forEach((li) => {
+    const b = toggle(li);
+    panel(li).addEventListener('click', (e) => {
+      if ((e.target as Element).closest('a') && !narrow.matches) close(li);
+    });
+    b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-expanded') === 'true';
+      if (on && how === 'hover' && !narrow.matches) { how = 'click'; return; }
+      if (on) close(li);
+      else open(li, 'click');
+    });
+    li.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse' || narrow.matches || !fine.matches) return;
+      clearTimeout(hideT);
+      if (openLi !== li) open(li, 'hover');
+    });
+    li.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse' || narrow.matches || how !== 'hover') return;
+      hideT = window.setTimeout(() => { if (openLi === li) close(li); }, 180);
+    });
+    li.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !narrow.matches && b.getAttribute('aria-expanded') === 'true') {
+        e.stopPropagation();
+        close(li, true);
+      }
+    });
+    li.addEventListener('focusout', (e) => {
+      const next = e.relatedTarget as Node | null;
+      if (!narrow.matches && next && !li.contains(next)) close(li);
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (openLi && !narrow.matches && !openLi.contains(e.target as Node)) close(openLi);
+  });
+
+  // Phones and small tablets: a full-height menu under the header. The page behind can't be reached while it's open.
+  const main = document.querySelector<HTMLElement>('main');
+  const foot = document.querySelector<HTMLElement>('.site-f');
+  function menu(on: boolean) {
+    root.classList.toggle('menu-open', on);
+    mb.setAttribute('aria-expanded', String(on));
+    if (main) main.inert = on;
+    if (foot) foot.inert = on;
+    if (on) {
+      root.style.setProperty('--hb', `${Math.max(0, h.getBoundingClientRect().bottom)}px`);
+      nav.querySelector<HTMLElement>('.nv-b')?.focus();
+    }
+  }
+  mb.addEventListener('click', () => menu(!root.classList.contains('menu-open')));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && root.classList.contains('menu-open')) { menu(false); mb.focus(); }
+  });
+  nav.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a') && root.classList.contains('menu-open')) menu(false);
+  });
+  narrow.addEventListener('change', () => {
+    menu(false);
+    items.forEach((li) => set(li, false));
+    openLi = null;
+  });
+  window.addEventListener('resize', () => { if (openLi) place(openLi); });
+</script>
+
+<style is:global>
+.site-h{position:relative;z-index:30;background:var(--white)}
+.site-h .in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px;padding-block:14px}
+.site-h img{display:block;width:118px;height:60px}
+.site-h .act{display:flex;align-items:center;gap:20px}
+.site-h .tel{font-family:var(--mono);font-size:14px;white-space:nowrap}
+/* main menu: each item opens a panel hung from the header rule */
+.site-nav{display:flex;align-items:center}
+.nv-l{display:flex;flex-wrap:wrap;gap:4px 26px;margin:0;padding:0;list-style:none;font-size:15px;font-weight:500}
+.nv{position:relative}
+.nv-b{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:10px 0;color:var(--ink);text-decoration:none;white-space:nowrap}
+.nv-b:hover{color:var(--red)} .nv-b:hover .chev{stroke:var(--red)}
+.nv-b:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+.nv-b.is-cur{box-shadow:inset 0 -1px 0 var(--red)}
+.nv-h{display:flex;align-items:center;gap:2px}
+.nv-t{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:22px;height:30px}
+.nv-t svg{transition:transform .18s ease}
+.nv-t:hover .chev,.nv.open .chev{stroke:var(--red)}
+.nv-t:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.nv.open .nv-b{color:var(--red)} .nv.open .nv-t svg{transform:rotate(180deg)}
+.nv-p{position:absolute;left:-20px;top:calc(100% + 24px);z-index:40;width:max-content;min-width:280px;max-width:min(360px,calc(100vw - 32px));padding:18px 20px 20px;background:var(--white);box-shadow:0 28px 48px -28px rgba(17,19,22,.28);display:flex;flex-direction:column;gap:14px;animation:nv-in .16s ease both}
+.nv-p[hidden]{display:none}
+.nv-p::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:28px}
+@keyframes nv-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.nv-p ul{list-style:none;margin:0;padding:0}
+.nv-p li a{display:flex;flex-direction:column;gap:3px;padding:11px 0;border-bottom:.5px solid var(--hair);text-decoration:none}
+.nv-n{font-size:15px;font-weight:500;line-height:1.3}
+.nv-d{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--graphite)}
+.nv-p li a:hover .nv-n{color:var(--red)}
+.nv-p .alink{font-size:14px}
+.nv-foot{display:none}
+.menu-b{all:unset;box-sizing:border-box;cursor:pointer;display:none;flex:none;width:44px;height:44px;border:.5px solid var(--ink);flex-direction:column;align-items:center;justify-content:center;gap:7px}
+.menu-b span{display:block;width:18px;height:1px;background:var(--ink);transition:transform .18s ease}
+.menu-b[aria-expanded="true"] span:first-child{transform:translateY(4px) rotate(45deg)}
+.menu-b[aria-expanded="true"] span:last-child{transform:translateY(-4px) rotate(-45deg)}
+.menu-b:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+@media (max-width:1240px){.site-h .tel{display:none}}
+@media (max-width:1080px){
+  .site-h .in{flex-wrap:nowrap}
+  .site-h .act{gap:10px}
+  .menu-b{display:inline-flex}
+  .site-nav{display:none;position:fixed;left:0;right:0;top:var(--hb,0px);bottom:0;z-index:60;overflow-y:auto;overscroll-behavior:contain;background:var(--white);
+    padding-top:8px;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));flex-direction:column;align-items:stretch;gap:32px}
+  html.menu-open .site-nav{display:flex}
+  html.menu-open,html.menu-open body{overflow:hidden}
+  .nv-l{flex-direction:column;flex-wrap:nowrap;gap:0;font-size:20px;letter-spacing:-.01em}
+  .nv{border-bottom:.5px solid var(--hair)}
+  .nv-h{justify-content:space-between}
+  .nv-b{flex:1;padding:18px 0}
+  .nv>.nv-b{display:flex}
+  .nv-t{width:44px;height:44px;margin-right:-12px}
+  .nv-b.is-cur{box-shadow:none;color:var(--red)}
+  .nv-p{position:static;width:auto;min-width:0;max-width:none;border:none;box-shadow:none;padding:0 0 20px;gap:12px;animation:none}
+  .nv-p::before{display:none}
+  .nv-p ul{border-top:none}
+  .nv-p li a{padding:9px 0;border-bottom:none}
+  .nv-n{font-size:16px}
+  .nv-foot{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:15px}
+  .nv-foot span{user-select:all}
+}
+@media (max-width:420px){.site-h .act .btn-i{display:none}.site-h .act .btn-sm .btn-l{padding:0 14px}}
+@media (max-width:359px){.site-h .act .btn{display:none}}
+@media (prefers-reduced-motion:reduce){.nv-p{animation:none}.nv-t svg,.menu-b span{transition:none}}
+</style>

@@ -1,0 +1,22 @@
+// Cloudflare settings: serve the built site in dist/ as static files.
+{
+  "name": "professional-instruments",
+  "compatibility_date": "2026-10-01",
+  // For now the site is a preview for PI on rjmarston.com (kept out of search; see astro.config.mjs).
+  // Both are added as Cloudflare custom domains on deploy, so rjmarston.com must be in the same Cloudflare account.
+  // At launch, swap these for airbearings.com and www.airbearings.com.
+  "routes": [
+    { "pattern": "rjmarston.com", "custom_domain": true },
+    { "pattern": "www.rjmarston.com", "custom_domain": true }
+  ],
+  // Keep the workers.dev address, and a preview link for every branch.
+  "workers_dev": true,
+  "preview_urls": true,
+  // Settings for branch previews (npx wrangler preview). Empty: previews use the same static site.
+  "previews": {},
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
