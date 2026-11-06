@@ -1,0 +1,67 @@
+---
+// The sticky bar on product pages: jump links that follow the section in view, and the inch / metric switch.
+interface Props { items: { label: string; id: string }[]; units?: boolean }
+const { items, units = false } = Astro.props;
+---
+
+<nav class="subnav wrap" aria-label="On this page">
+  <div class="in">
+    <div class="sn-links">{items.map((i) => <a href={`#${i.id}`} data-spy={i.id}>{i.label}</a>)}</div>
+    {units && (
+      <div class="units" role="group" aria-label="Units">
+        <button type="button" data-u="en" aria-pressed="true">Inch</button>
+        <button type="button" data-u="si" aria-pressed="false">Metric</button>
+      </div>
+    )}
+  </div>
+</nav>
+
+<script>
+  // Inch or metric, remembered per visitor.
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.units button')];
+  const setUnits = (v: string) => {
+    document.documentElement.classList.toggle('si', v === 'si');
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.u === v)));
+  };
+  if (buttons.length) {
+    let saved = 'en';
+    try { saved = localStorage.getItem('pi-units') || 'en'; } catch {}
+    setUnits(saved);
+    buttons.forEach((b) => b.addEventListener('click', () => {
+      const v = b.dataset.u || 'en';
+      setUnits(v);
+      try { localStorage.setItem('pi-units', v); } catch {}
+    }));
+  }
+
+  // The jump links follow the section in view.
+  const spy = [...document.querySelectorAll<HTMLAnchorElement>('[data-spy]')];
+  if (spy.length && 'IntersectionObserver' in window) {
+    const current = (id: string) => spy.forEach((a) => {
+      if (a.dataset.spy === id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    const so = new IntersectionObserver(
+      (entries) => entries.forEach((en) => { if (en.isIntersecting) current(en.target.id); }),
+      { rootMargin: '-30% 0px -60% 0px' },
+    );
+    spy.forEach((a) => { const s = a.dataset.spy && document.getElementById(a.dataset.spy); if (s) so.observe(s); });
+  }
+</script>
+
+<style is:global>
+.subnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:25;background:var(--white);border-top:.5px solid var(--hair);border-bottom:.5px solid var(--hair)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:26;background:var(--white)}
+.subnav .in{display:flex;align-items:center;justify-content:space-between;gap:16px 32px}
+.sn-links{display:flex;gap:28px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.sn-links::-webkit-scrollbar{display:none}
+@media (max-width:860px){.sn-links{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);padding-right:40px}}
+.sn-links a{padding:17px 0 16px;font-size:14px;font-weight:500;color:var(--graphite);text-decoration:none;white-space:nowrap;box-shadow:inset 0 -1.5px 0 transparent;transition:color .18s ease,box-shadow .18s ease}
+.sn-links a:hover{color:var(--ink)}
+.sn-links a[aria-current="true"]{color:var(--ink);box-shadow:inset 0 -1.5px 0 var(--red)}
+.units{display:flex;flex:none}
+.units button{all:unset;cursor:pointer;box-sizing:border-box;height:32px;padding:0 12px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink);border:.5px solid var(--ink)}
+.units button+button{border-left:none}
+.units button[aria-pressed="true"]{background:var(--ink);color:var(--white)}
+.units button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+</style>

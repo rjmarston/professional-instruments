@@ -1,0 +1,14 @@
+---
+// A row of key figures, each with a short caption.
+import type { Value as V } from '../data/products';
+import Value from './Value.astro';
+
+interface Props { items: { value: V; label: string }[]; class?: string }
+const { items, class: extra = '' } = Astro.props;
+---
+
+<div class={`facts ${extra}`.trim()}>
+  {items.map((f) => (
+    <div class="fact"><span class="n"><Value v={f.value} /></span><span class="c">{f.label}</span></div>
+  ))}
+</div>

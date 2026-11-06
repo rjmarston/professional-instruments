@@ -1,0 +1,9 @@
+---
+// A figure with an optional metric twin. The units switch on product pages shows one or the other.
+import type { Value } from '../data/products';
+
+interface Props { v: Value }
+const { v } = Astro.props;
+---
+
+{Array.isArray(v) ? (<><span class="u-en">{v[0]}</span><span class="u-si">{v[1]}</span></>) : v}

@@ -1,0 +1,163 @@
+// Site-wide settings. Change these in one place.
+export const site = {
+  name: 'Professional Instruments Company',
+  shortName: 'Professional Instruments',
+  description:
+    'Professional Instruments makes the world’s most accurate air bearing spindles and slides, for millionth-inch precision, high stiffness and zero friction.',
+  phone: '(952) 933-1222',
+  phoneIntl: '+1-952-933-1222',
+  email: 'sales@airbearings.com',
+  address: {
+    street: '7800 Powell Road',
+    city: 'Hopkins',
+    region: 'MN',
+    postalCode: '55343',
+    country: 'USA',
+  },
+  coords: { lat: 44.929351, lng: -93.376439, label: '44.929351° N, 93.376439° W' },
+  mapUrl: 'https://www.google.com/maps/search/?api=1&query=44.929351,-93.376439',
+  founded: '1946',
+  social: {
+    youtube: 'https://www.youtube.com/@PIcoAirBearings',
+    linkedin: 'https://www.linkedin.com/company/professional-instruments-company/',
+  },
+  // Documents still hosted on Google Drive. Move them to this site when the library is built.
+  docs: {
+    terms: 'https://drive.google.com/file/d/1pVxfEVMu_ZpF70zb4xLuzHl04L1EgJnZ/view',
+    posters: 'https://docs.google.com/folderview?id=1fnoQGHLuQceyPYA0myIPR7fJ5yNXgVJJ',
+  },
+};
+
+// Homepage hero. 'original' is the plate to the right of the headline; 'sheet' is the drawing sheet.
+// showToggle puts a small A/B switch in the hero so PI can compare the two. Turn it off once they pick.
+export const hero = {
+  default: 'original' as 'original' | 'sheet',
+  showToggle: true,
+};
+
+// Pages that aren't built yet. Links to them show a short notice instead of going nowhere.
+export const notBuilt = '#';
+
+export const urls = {
+  home: '/',
+  products: '/products',
+  product4r: '/products/blockhead/4r',
+  about: '/about',
+  contact: '/contact',
+  quote: '/contact#quote',
+};
+
+export const applicationLinks = [
+  { name: 'Disk testing', slug: 'disk-testing' },
+  { name: 'Roundness and flatness', slug: 'roundness-flatness' },
+  { name: 'Machine tool workheads', slug: 'workheads' },
+  { name: 'Bearing analysis', slug: 'bearing-analysis' },
+  { name: 'Pivots and indexers', slug: 'pivots-indexers' },
+  { name: 'Optical scanners', slug: 'optical-scanners' },
+  { name: 'Grinding', slug: 'grinding' },
+];
+
+type MenuItem = { name: string; detail?: string; href: string };
+type Menu = { label: string; key: string; href: string; items: MenuItem[]; more?: { label: string; href: string } };
+
+// Main menu. The label goes to `href`; the arrow beside it opens the list of `items`.
+export const menus: Menu[] = [
+  {
+    label: 'Products',
+    key: 'products',
+    href: urls.products,
+    items: [
+      { name: 'Blockhead series', detail: '7 models · 1 µin (25 nm)', href: '/products#blockhead' },
+      { name: 'ISO series', detail: '5 models · to 50,000 rpm', href: '/products#iso' },
+      { name: '4RH oil hydrostatic', detail: 'Biconic · 2,000 lb axial', href: '/products#4rh' },
+      { name: 'Accessories', detail: 'GF-5 Flatstones and attachments', href: '/products#accessories' },
+    ],
+    more: { label: 'View all spindles', href: urls.products },
+  },
+  {
+    label: 'Services',
+    key: 'services',
+    href: '/#services',
+    items: [
+      { name: 'Precision engineering', detail: 'Custom air bearing spindles', href: '/#engineering' },
+      { name: 'Precision manufacturing', detail: 'Grinding and diamond machining to order', href: '/#manufacturing' },
+    ],
+    more: { label: 'Request a quote', href: urls.quote },
+  },
+  {
+    label: 'Applications',
+    key: 'applications',
+    href: '/#applications',
+    items: applicationLinks.map((a) => ({ name: a.name, href: `/#app-${a.slug}` })),
+  },
+  {
+    label: 'Resources',
+    key: 'resources',
+    href: '/#resources',
+    items: [
+      { name: 'Brochures and drawings', href: '/#resources' },
+      { name: 'Technical posters', detail: '87 posters, 2004 to 2026', href: '/about#research' },
+      { name: 'Videos', detail: 'YouTube', href: site.social.youtube },
+    ],
+  },
+  {
+    label: 'About',
+    key: 'about',
+    href: urls.about,
+    items: [
+      { name: 'Who we are', href: '/about#company' },
+      { name: 'History', detail: 'Since 1946', href: '/about#history' },
+      { name: 'The shop', href: '/about#shop' },
+    ],
+    more: { label: 'Contact us', href: urls.contact },
+  },
+];
+
+export const footerNav = [
+  {
+    title: 'Products',
+    links: [
+      { label: 'Blockhead series', href: '/products#blockhead' },
+      { label: 'ISO series', href: '/products#iso' },
+      { label: '4RH oil hydrostatic', href: '/products#4rh' },
+      { label: 'GF-5 Flatstones', href: '/products#accessories' },
+      { label: 'Attachments', href: '/products#accessories' },
+      { label: 'View all spindles', href: urls.products },
+    ],
+  },
+  {
+    title: 'Services',
+    links: [
+      { label: 'Precision engineering', href: '/#engineering' },
+      { label: 'Precision manufacturing', href: '/#manufacturing' },
+      { label: 'Request a quote', href: urls.quote },
+    ],
+  },
+  {
+    title: 'Applications',
+    links: applicationLinks.map((a) => ({ label: a.name, href: `/#app-${a.slug}` })),
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Brochures and drawings', href: '/#resources' },
+      { label: 'Posters', href: '/about#research' },
+      { label: 'Videos', href: site.social.youtube },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About', href: urls.about },
+      { label: 'History', href: '/about#history' },
+      { label: 'Contact', href: urls.contact },
+    ],
+  },
+];
+
+// The closing call to action at the bottom of most pages.
+export const cta = {
+  title: 'Tell us about your <span class="nw">high-precision</span> project.',
+  text: 'For prompt, personal service, request a quote or give us a call.',
+  button: 'Request a quote',
+};

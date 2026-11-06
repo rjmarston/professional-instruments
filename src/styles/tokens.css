@@ -1,0 +1,23 @@
+/*
+  Design tokens. Every color and font on the site comes from here.
+  Red (#BD1C22) is the brand color, used for actions and the one thing that matters on a screen.
+  Ink hairlines do the rest: .5px for detail, 1px for rules.
+*/
+:root {
+  /* Color · brand */
+  --red: #BD1C22;
+  --red-deep: #8F1418;
+  --on-red-line: rgba(255, 255, 255, .34);
+  --on-red-edge: rgba(255, 255, 255, .16);
+  /* Color · neutral */
+  --ink: #111316;
+  --graphite: #5E646C;
+  --rule: #9AA0A8;
+  --hair: #C9CDD2;
+  --fog: #F6F7F8;
+  --white: #FFFFFF;
+  --on-ink-line: rgba(255, 255, 255, .3);
+  /* Type: Inter Tight for words, Azeret Mono for figures, units and labels */
+  --sans: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Azeret Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}

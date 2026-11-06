@@ -1,0 +1,49 @@
+---
+import { footerNav, site } from '../data/site';
+import TickRule from './TickRule.astro';
+---
+
+<footer class="site-f wrap">
+  <div class="in">
+    <TickRule />
+    <div class="f-top">
+      <div class="f-brand">
+        <img src="/images/logo.webp" alt={site.name} width="118" height="60" loading="lazy" />
+        <p>{site.address.street}<br />{site.address.city}, {site.address.region} {site.address.postalCode} {site.address.country}<br />{site.phone}<br />{site.email}</p>
+      </div>
+      <div class="f-cols">
+        {footerNav.map((col) => (
+          <div><h2>{col.title}</h2>{col.links.map((l) => <a href={l.href}>{l.label}</a>)}</div>
+        ))}
+      </div>
+    </div>
+    <div class="f-bot">
+      <span>© {site.name}</span>
+      <nav aria-label="Legal">
+        <a href={site.docs.terms}>Terms and conditions</a>
+        <a href="#">Privacy</a>
+        <a href={site.social.youtube}>YouTube</a>
+        <a href={site.social.linkedin}>LinkedIn</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<style is:global>
+/* footer */
+.site-f{margin-top:0}
+.site-f .in{display:flex;flex-direction:column;gap:48px;padding-block:0 32px}
+.site-f .tickrule{margin-bottom:8px}
+.f-top{display:flex;flex-wrap:wrap;gap:40px 64px}
+.f-brand{flex:1 1 240px;display:flex;flex-direction:column;gap:16px}
+.f-brand img{display:block;width:118px;height:60px}
+.f-brand p{margin:0;font-size:14px;line-height:1.7;color:var(--graphite)}
+.f-cols{flex:3 1 640px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:32px}
+.f-cols h2{margin:0 0 6px;font-size:14px;font-weight:600}
+.f-cols div{display:flex;flex-direction:column;gap:9px;min-width:0}
+.f-cols a{font-size:14px;color:var(--graphite);text-decoration:none}
+.f-cols a:hover{color:var(--red)}
+.f-bot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px;padding-top:18px;border-top:.5px solid var(--hair);font-size:13px;color:var(--graphite)}
+.f-bot nav{display:flex;flex-wrap:wrap;gap:20px}
+.f-bot a{color:var(--graphite);text-decoration:none}
+</style>

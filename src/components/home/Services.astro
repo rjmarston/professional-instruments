@@ -1,0 +1,47 @@
+---
+import SectionHead from '../SectionHead.astro';
+import ArrowLink from '../ArrowLink.astro';
+import { services } from '../../data/home';
+import { notBuilt } from '../../data/site';
+---
+
+<section id="services" class="sec sec-first wrap" aria-labelledby="svc-h">
+  <div class="in">
+    <SectionHead id="svc-h" title={services.title} intro={services.intro} />
+    <div class="svcs">
+      {services.items.map((s, i) => (
+        <>
+          {i === 1 && <span class="vrule" aria-hidden="true"></span>}
+          <article id={s.id} class="svc" aria-labelledby={`${s.id}-h`}>
+            <figure class="photo"><div class="frame"><img src={s.image.src} alt={s.image.alt} width={s.image.width} height={s.image.height} loading="lazy" /></div></figure>
+            <h3 id={`${s.id}-h`}>{s.name}</h3>
+            <p class="svc-d">{s.desc}</p>
+            <ul class="svc-l">{s.list.map((t) => <li>{t}</li>)}</ul>
+            <div class="figs">{s.figures.map((f) => <div class="fig-n"><span class="n">{f.value}</span><span class="c">{f.label}</span></div>)}</div>
+            <div class="svc-a"><ArrowLink label={s.link} href={notBuilt} /></div>
+          </article>
+        </>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+/* services */
+.svcs{display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);grid-template-rows:repeat(6,auto);gap:20px 56px}
+.vrule{grid-row:1/span 6;grid-column:2}
+.svcs>.svc:first-child{grid-column:1}
+.svcs>.svc:last-child{grid-column:3}
+.vrule{background:repeating-linear-gradient(to bottom,var(--rule) 0 1px,transparent 1px 8px);width:1px}
+.svc{display:grid;grid-row:span 6;grid-template-rows:subgrid;min-width:0;align-items:start}
+.svc h3{margin:8px 0 0;font-size:clamp(26px,2.4vw,34px);line-height:1.1;font-weight:500;letter-spacing:-.03em}
+.svc-l{margin:0;padding:0;list-style:none;border-top:.5px solid var(--hair)}
+.svc-l li{padding:11px 0;border-bottom:.5px solid var(--hair);font-size:15px}
+.figs{display:flex}
+.fig-n{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px;padding:4px 20px 0 0}
+.fig-n+.fig-n{border-left:.5px solid var(--hair);padding-left:20px}
+.fig-n .n{font-family:var(--mono);font-size:30px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.fig-n .c{font-size:13px;color:var(--graphite)}
+.svc-a{display:flex;flex-wrap:wrap;align-items:center;gap:16px 28px;margin-top:4px}
+@media (max-width:900px){.svcs{grid-template-columns:minmax(0,1fr);grid-template-rows:none;row-gap:64px}.svcs>.svc:first-child,.svcs>.svc:last-child{grid-column:1}.svc{grid-row:auto;grid-template-rows:none;row-gap:20px}.vrule{display:none}}
+</style>

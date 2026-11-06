@@ -1,0 +1,94 @@
+---
+// Homepage hero. Two designs share this markup:
+//   A, original: the plate and the 4R sit to the right of the headline.
+//   B, sheet:    the first screen is drawn as an engineering drawing sheet, with callouts on the 4R.
+// The plate and the 4R themselves belong to the product wheel below (ProductWheel.astro), which
+// carries them from the hero into the wheel as you scroll.
+import Button from '../Button.astro';
+import { hero } from '../../data/home';
+import { hero as heroSettings } from '../../data/site';
+
+const zoneNumbers = [1, 2, 3, 4, 5, 6, 7, 8];
+const zoneLetters = ['A', 'B', 'C', 'D'];
+const withSheet = heroSettings.showToggle || heroSettings.default === 'sheet';
+---
+
+<section class="hero wrap">
+  {withSheet && (
+    <div class="sheet" aria-hidden="true">
+      <div class="zt">{zoneNumbers.map((n) => <span>{n}</span>)}</div>
+      <div class="zb">{zoneNumbers.map((n) => <span>{n}</span>)}</div>
+      <div class="zl">{zoneLetters.map((c) => <span>{c}</span>)}</div>
+      <div class="zr">{zoneLetters.map((c) => <span>{c}</span>)}</div>
+      <div class="tb">{hero.titleBlock.map((c) => <div><span>{c.label}</span>{c.value}</div>)}</div>
+    </div>
+  )}
+  <div class="in">
+    <div class="hero-t">
+      <h1>{hero.title}</h1>
+      <p class="hero-p">{hero.lede}</p>
+      <div class="hero-b">
+        <Button label={hero.primary} href="#products" data-stop="0" />
+        <Button label={hero.secondary.label} href={hero.secondary.href} kind="line" />
+      </div>
+    </div>
+  </div>
+  {heroSettings.showToggle && (
+    <div class="hero-ab" role="group" aria-label="Hero design">
+      <span>Hero</span>
+      <button type="button" data-hero="original" aria-pressed={heroSettings.default === 'original' ? 'true' : 'false'} title="A: original">A</button>
+      <button type="button" data-hero="sheet" aria-pressed={heroSettings.default === 'sheet' ? 'true' : 'false'} title="B: drawing sheet">B</button>
+    </div>
+  )}
+</section>
+
+<style is:global>
+/* hero */
+.hero{position:relative;z-index:2}
+.hero .in{display:flex;flex-wrap:wrap;align-items:center;gap:0 32px}
+.hero-t{flex:1 1 480px;min-width:0;padding-block:112px 104px;display:flex;flex-direction:column}
+.hero h1{margin:0;max-width:9.6em;font-size:clamp(40px,4.4vw,64px);line-height:1.03;font-weight:500;letter-spacing:-.035em}
+.hero-p{margin:32px 0 0;font-size:clamp(18px,1.45vw,21px);line-height:1.55;max-width:24em;color:var(--graphite)}
+.hero-b{display:flex;flex-wrap:wrap;gap:12px;margin-top:48px}
+@media (min-width:1100px){.hero .in{min-height:calc(100vh - 97px);min-height:calc(100svh - 97px)}.hero-t{padding-block:72px}}
+@media (max-width:860px){.hero-t{padding-block:56px 32px}}
+.hero h1{animation:rise .9s cubic-bezier(.2,0,0,1) .1s both}
+.hero-p{animation:rise .9s cubic-bezier(.2,0,0,1) .24s both}
+.hero-b{animation:rise .9s cubic-bezier(.2,0,0,1) .38s both}
+.wheel.on-load{animation:fadein 1.2s ease .25s both}
+@media (prefers-reduced-motion:reduce){.hero h1,.hero-p,.hero-b,.wheel.on-load{animation:none}}
+/* hero B: the first screen drawn as a drawing sheet, edge to edge below the header */
+.sheet,.hero-ab{display:none}
+@media (min-width:1100px){
+  .hv-sheet .hero .in{min-height:calc(100vh - var(--hh,89px));min-height:calc(100svh - var(--hh,89px))}
+  .hv-sheet .sheet{display:block;position:absolute;z-index:-1;top:16px;bottom:16px;left:32px;right:32px;border:.5px solid var(--ink);pointer-events:none;animation:fadein .5s ease backwards}
+  .hv-sheet .sheet::after{content:"";position:absolute;inset:20px;border:.5px solid var(--ink)}
+  .zt,.zb{position:absolute;left:20px;right:20px;height:20px;display:flex}
+  .zt{top:0} .zb{bottom:0}
+  .zl,.zr{position:absolute;top:20px;bottom:20px;width:20px;display:flex;flex-direction:column}
+  .zl{left:0} .zr{right:0}
+  .zt span,.zb span,.zl span,.zr span{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--graphite)}
+  .zt span+span,.zb span+span{border-left:.5px solid var(--rule)}
+  .zl span+span,.zr span+span{border-top:.5px solid var(--rule)}
+  .tb{position:absolute;right:20px;bottom:20px;display:grid;grid-template-columns:auto auto;border-top:.5px solid var(--ink);border-left:.5px solid var(--ink);background:var(--white)}
+  .tb div{display:flex;flex-direction:column;gap:2px;padding:8px 16px 9px 12px;font-size:13px;line-height:1.35}
+  .tb div:nth-child(odd){border-right:.5px solid var(--rule)}
+  .tb div:nth-child(-n+2){border-bottom:.5px solid var(--rule)}
+  .tb span{font-size:12px;color:var(--graphite)}
+  .hv-sheet .hero-t{padding-block:96px 120px;padding-left:max(0px,calc(124px - max(40px,(100vw - 1360px)/2)))}
+  /* A/B toggle: bottom-left of the hero; inside the sheet's inner frame when B is showing */
+  .hero-ab{display:flex;align-items:center;position:absolute;z-index:3;left:max(32px,calc((100% - 1360px)/2));bottom:28px;border:.5px solid var(--ink);background:var(--white);font-family:var(--mono);font-size:12px}
+  .hero-ab span{padding:0 10px;color:var(--graphite)}
+  .hero-ab button{all:unset;box-sizing:border-box;cursor:pointer;width:32px;height:28px;display:flex;align-items:center;justify-content:center;border-left:.5px solid var(--ink);color:var(--ink)}
+  .hero-ab button:hover{color:var(--red)}
+  .hero-ab button[aria-pressed="true"]{background:var(--ink);color:var(--white)}
+  .hero-ab button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+  .hv-sheet .hero-ab{left:72px;bottom:52px}
+}
+@media (min-width:1200px){
+  .hv-sheet .sheet{left:40px;right:40px}
+  .hero-ab{left:max(40px,calc((100% - 1360px)/2))}
+  .hv-sheet .hero-ab{left:80px}
+}
+@media (prefers-reduced-motion:reduce){.hv-sheet .sheet{animation:none}}
+</style>

@@ -1,0 +1,27 @@
+---
+import SectionHead from '../SectionHead.astro';
+import TickRule from '../TickRule.astro';
+import ArrowLink from '../ArrowLink.astro';
+import { resources } from '../../data/home';
+---
+
+<section id="resources" class="sec wrap" aria-labelledby="res-h">
+  <div class="in">
+    <SectionHead id="res-h" title={resources.title} />
+    <div class="res-g">
+      {resources.items.map((r) => (
+        <div class="res"><TickRule /><h3>{r.title}</h3><p>{r.desc}</p><ArrowLink label={r.link} href={r.href} /></div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+/* resources */
+.res-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 113px}
+@media (max-width:860px){.res-g{grid-template-columns:minmax(0,1fr)}}
+.res{display:flex;flex-direction:column;gap:12px;min-width:0}
+.res .tickrule{margin-bottom:8px}
+.res h3{margin:0;font-size:22px;line-height:1.2;font-weight:500;letter-spacing:-.015em}
+.res p{margin:0;font-size:15px;color:var(--graphite)}
+</style>

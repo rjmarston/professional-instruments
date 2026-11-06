@@ -1,0 +1,17 @@
+---
+// Every product line opens the same way: the product on its plate, three key figures, one paragraph.
+import StagePlate from '../StagePlate.astro';
+import Facts from '../Facts.astro';
+import type { Value } from '../../data/products';
+
+interface Props { image: { src: string; alt: string }; facts: { value: Value; label: string }[]; text: string }
+const { image, facts, text } = Astro.props;
+---
+
+<div class="fam">
+  <StagePlate src={image.src} alt={image.alt} />
+  <div class="fam-t">
+    <Facts items={facts} />
+    <p class="svc-d">{text}</p>
+  </div>
+</div>

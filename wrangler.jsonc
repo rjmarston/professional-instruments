@@ -1,0 +1,21 @@
+// Cloudflare settings: serve the built site in dist/ as static files.
+{
+  "name": "professional-instruments",
+  "compatibility_date": "2026-10-01",
+  // airbearings.com still runs on Google Sites. When it's time to switch, add the domain here
+  // and it is attached as a Cloudflare custom domain on the next deploy:
+  // "routes": [
+  //   { "pattern": "airbearings.com", "custom_domain": true },
+  //   { "pattern": "www.airbearings.com", "custom_domain": true }
+  // ],
+  // Until then the site lives on its workers.dev address, with a preview link for every branch.
+  "workers_dev": true,
+  "preview_urls": true,
+  // Settings for branch previews (npx wrangler preview). Empty: previews use the same static site.
+  "previews": {},
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}

@@ -1,0 +1,158 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Cta from '../components/Cta.astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Page title. " | Professional Instruments" is added unless fullTitle is set. */
+  title?: string;
+  fullTitle?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>[];
+  /** Which main menu item to underline: products, services, applications, resources, about or contact. */
+  active?: string;
+  /** The closing call to action. Pass false to leave it off, or { title, text } to change the words. */
+  cta?: false | { title?: string; text?: string };
+  ogType?: string;
+  mainClass?: string;
+}
+
+const {
+  title,
+  fullTitle,
+  description = site.description,
+  image = '/og-default.png',
+  noindex = false,
+  jsonLd = [],
+  active = '',
+  cta = {},
+  ogType = 'website',
+  mainClass,
+} = Astro.props;
+
+const pageTitle = fullTitle ?? (title ? `${title} | ${site.shortName}` : `Air bearing spindles and slides | ${site.shortName}`);
+const shareTitle = pageTitle.split(' | ')[0];
+// Clean URLs: "/index.html" → "/", "/about.html" → "/about".
+const cleanPath = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '') || '/';
+const canonical = new URL(cleanPath, Astro.site);
+const imageUrl = new URL(image, Astro.site);
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: Astro.site?.toString(),
+  logo: new URL('/images/logo.webp', Astro.site).toString(),
+  foundingDate: site.founded,
+  telephone: site.phoneIntl,
+  email: site.email,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.city,
+    addressRegion: site.address.region,
+    postalCode: site.address.postalCode,
+    addressCountry: 'US',
+  },
+  sameAs: [site.social.youtube, site.social.linkedin],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#FFFFFF" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={shareTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={shareTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(org)} />
+    {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav active={active} />
+    <main id="main" class={mainClass}>
+      <slot />
+      {cta !== false && <Cta title={cta.title} text={cta.text} />}
+    </main>
+    <Footer />
+    <script>
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      // Section headings and statements reveal once as they come into view. Content shows without JavaScript.
+      if ('IntersectionObserver' in window && !reduce.matches) {
+        document.documentElement.classList.add('js-io');
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const en of entries) {
+              if (!en.isIntersecting) continue;
+              en.target.classList.add('in-view');
+              io.unobserve(en.target);
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px' },
+        );
+        document.querySelectorAll('.reveal').forEach((el) => {
+          if (el.getBoundingClientRect().top < window.innerHeight * 0.88) el.classList.add('in-view');
+          else io.observe(el);
+        });
+      }
+
+      // Bolt-circle plates (class "spin") turn with the scroll: the angle follows each plate's
+      // distance from the middle of the screen, so they stop when scrolling stops.
+      const wheels = [...document.querySelectorAll<SVGElement>('.spin')];
+      const turn = () => {
+        if (reduce.matches) return;
+        const vh = window.innerHeight;
+        for (const w of wheels) {
+          const r = w.getBoundingClientRect();
+          if (r.bottom < -200 || r.top > vh + 200) continue;
+          w.style.transform = `rotate(${((vh / 2 - (r.top + r.height / 2)) * 0.08).toFixed(2)}deg)`;
+        }
+      };
+      window.addEventListener('scroll', turn, { passive: true });
+      window.addEventListener('resize', turn);
+      turn();
+
+      // Links to pages that aren't built yet (href="#") say so instead of jumping to the top.
+      const note = document.createElement('div');
+      note.className = 'proto-note';
+      note.setAttribute('role', 'status');
+      document.body.appendChild(note);
+      let hideNote = 0;
+      document.addEventListener('click', (e) => {
+        const a = (e.target as Element).closest('a[href="#"]');
+        if (!a) return;
+        e.preventDefault();
+        note.textContent = 'This page isn’t built yet.';
+        requestAnimationFrame(() => note.classList.add('on'));
+        clearTimeout(hideNote);
+        hideNote = window.setTimeout(() => note.classList.remove('on'), 2600);
+      });
+    </script>
+  </body>
+</html>

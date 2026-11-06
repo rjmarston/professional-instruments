@@ -1,0 +1,151 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import TickRule from '../components/TickRule.astro';
+import ArrowLink from '../components/ArrowLink.astro';
+import Button from '../components/Button.astro';
+import { contact } from '../data/contact';
+import { site } from '../data/site';
+
+const form = contact.form;
+const chev = '<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><polyline points="0.5,0.5 4.5,4.5 8.5,0.5" class="chev"></polyline></svg>';
+---
+
+<Base title={contact.seoTitle} description={contact.seoDescription} active="contact" cta={false}>
+  <PageHead title={contact.title} lede={contact.lede} crumbs={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
+
+  <section class="sec sec-first wrap" aria-label="Contact details and request a quote">
+    <div class="in">
+      <div class="ct">
+        <div class="ct-d">
+          <div class="cd"><TickRule /><h2>Phone</h2><p class="mono-l">{site.phone}</p></div>
+          <div class="cd"><TickRule /><h2>Email</h2><p class="mono-l">{site.email}</p></div>
+          <div class="cd">
+            <TickRule /><h2>Address</h2>
+            <p>{site.name}<br />{site.address.street}<br />{site.address.city}, {site.address.region} {site.address.postalCode} {site.address.country}</p>
+            <p class="coord">{site.coords.label}</p>
+            <ArrowLink label="Open in Google Maps" href={site.mapUrl} />
+          </div>
+          <div class="cd"><TickRule /><h2>Follow</h2><p class="links"><a href={site.social.youtube}>YouTube</a><a href={site.social.linkedin}>LinkedIn</a></p></div>
+        </div>
+
+        <div id="quote" class="ct-f anchor">
+          <div class="sh"><div class="sh-row"><h2 id="quote-h">{form.title}</h2></div><span class="sh-rule" aria-hidden="true"></span></div>
+          <form id="quote-form" class="qf" novalidate aria-labelledby="quote-h">
+            <div class="f"><label for="q-name">Name<span class="req" aria-hidden="true">*</span></label><input id="q-name" name="name" type="text" required aria-required="true" autocomplete="name" /><p class="err" id="q-name-e" hidden></p></div>
+            <div class="f"><label for="q-company">Company</label><input id="q-company" name="company" type="text" autocomplete="organization" /></div>
+            <div class="f"><label for="q-email">Email<span class="req" aria-hidden="true">*</span></label><input id="q-email" name="email" type="email" required aria-required="true" autocomplete="email" /><p class="err" id="q-email-e" hidden></p></div>
+            <div class="f"><label for="q-phone">Phone</label><input id="q-phone" name="phone" type="tel" autocomplete="tel" /></div>
+            <div class="f">
+              <label for="q-interest">What do you need?<span class="req" aria-hidden="true">*</span></label>
+              <div class="sel"><select id="q-interest" name="interest" required aria-required="true"><option value="">Choose one</option>{form.interests.map((o) => <option value={o.value}>{o.label}</option>)}</select><Fragment set:html={chev} /></div>
+              <p class="err" id="q-interest-e" hidden></p>
+            </div>
+            <div class="f">
+              <label for="q-model">Model</label>
+              <div class="sel"><select id="q-model" name="model"><option value="">Not sure yet</option>{form.models.map((m) => <option value={m}>{m}</option>)}</select><Fragment set:html={chev} /></div>
+            </div>
+            <div class="f full">
+              <label for="q-app">Application</label>
+              <div class="sel"><select id="q-app" name="application"><option value="">Choose one</option>{form.applications.map((a) => <option value={a}>{a}</option>)}<option value="other">Other</option></select><Fragment set:html={chev} /></div>
+            </div>
+            <div class="f full"><label for="q-req">Requirements</label><p class="hint" id="q-req-h">{form.requirementsHint}</p><textarea id="q-req" name="requirements" rows="3" aria-describedby="q-req-h"></textarea></div>
+            <div class="f full"><label for="q-msg">Anything else</label><textarea id="q-msg" name="message" rows="3"></textarea></div>
+            <div class="qf-a full"><Button label={form.submit} submit /><p class="qf-n">Fields marked <span class="req">*</span> are required.</p></div>
+          </form>
+          <div class="qf-done" id="quote-done" hidden tabindex="-1">
+            <h3>{form.done.title}</h3>
+            <p>{form.done.text}</p>
+            <button type="button" class="alink" id="quote-again"><span>{form.done.again}</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Blur-first validation: a field is checked when you leave it, and its message clears as soon as it's fixed.
+  const form = document.getElementById('quote-form') as HTMLFormElement;
+  const done = document.getElementById('quote-done')!;
+  const rules: Record<string, (v: string) => string> = {
+    'q-name': (v) => (v.trim() ? '' : 'Enter your name so we know who to reply to.'),
+    'q-email': (v) => (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim()) ? '' : 'Enter an email address like name@company.com.'),
+    'q-interest': (v) => (v ? '' : 'Choose what you need so the right person replies.'),
+  };
+  const field = (id: string) => document.getElementById(id) as HTMLInputElement | HTMLSelectElement;
+  function check(id: string, show: boolean) {
+    const el = field(id), err = document.getElementById(`${id}-e`)!, msg = rules[id](el.value);
+    if (msg && show) {
+      err.textContent = msg; err.hidden = false;
+      el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', `${id}-e`);
+    }
+    if (!msg) { err.hidden = true; el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); }
+    return !msg;
+  }
+  Object.keys(rules).forEach((id) => {
+    const el = field(id);
+    el.addEventListener('blur', () => { if (el.value) check(id, true); });
+    el.addEventListener('input', () => { if (el.getAttribute('aria-invalid')) check(id, false); });
+    el.addEventListener('change', () => { if (el.getAttribute('aria-invalid')) check(id, false); });
+  });
+
+  // The model list only matters for a standard spindle.
+  const interest = field('q-interest');
+  const model = field('q-model').closest<HTMLElement>('.f')!;
+  const toggleModel = () => { model.hidden = !(interest.value === '' || interest.value === 'standard'); };
+  interest.addEventListener('change', toggleModel);
+  toggleModel();
+
+  // The form doesn't send anywhere yet; see README.
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    let first: HTMLElement | null = null;
+    Object.keys(rules).forEach((id) => { if (!check(id, true) && !first) first = field(id); });
+    if (first) { (first as HTMLElement).focus(); return; }
+    form.hidden = true; done.hidden = false; done.focus();
+  });
+  document.getElementById('quote-again')!.addEventListener('click', () => {
+    form.reset(); toggleModel();
+    done.hidden = true; form.hidden = false;
+    field('q-name').focus();
+  });
+</script>
+
+<style is:global>
+.ct{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);column-gap:113px;row-gap:56px;align-items:start;padding-bottom:160px}
+@media (max-width:960px){.ct{grid-template-columns:minmax(0,1fr)}}
+.ct-d{display:flex;flex-direction:column;gap:36px}
+.cd{display:flex;flex-direction:column;gap:10px}
+.cd .tickrule{margin-bottom:6px}
+.cd h2{margin:0;font-size:14px;font-weight:600}
+.cd p{margin:0;font-size:16px;line-height:1.6}
+.mono-l{font-family:var(--mono);font-size:20px!important;letter-spacing:-.01em;user-select:all}
+.coord{font-family:var(--mono);font-size:13px!important;color:var(--graphite)}
+.cd .links{display:flex;gap:24px}
+.cd .links a{text-decoration:none;border-bottom:1px solid var(--rule)} .cd .links a:hover{border-color:var(--red)}
+.ct-f{display:flex;flex-direction:column;gap:40px;min-width:0}
+.ct-f .sh h2{font-size:clamp(28px,2.8vw,40px)}
+.qf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px 40px}
+.qf .full{grid-column:1/-1}
+@media (max-width:640px){.qf{grid-template-columns:minmax(0,1fr)}}
+.f{display:flex;flex-direction:column;gap:8px;min-width:0}
+.f label,.lbl{font-size:13px;font-weight:600}
+.req{color:var(--red);margin-left:3px}
+.f input,.f textarea,.sel select{all:unset;box-sizing:border-box;width:100%;font-family:var(--sans);font-size:17px;color:var(--ink);padding:8px 0 10px;border-bottom:1px solid var(--ink)}
+.f textarea{resize:vertical;min-height:84px;line-height:1.5;white-space:pre-wrap}
+.f input:focus,.f textarea:focus,.sel select:focus{border-bottom-color:var(--red);outline:none;box-shadow:0 1px 0 var(--red)}
+.f [aria-invalid="true"]{border-bottom-color:var(--red)}
+.sel{position:relative;display:flex;align-items:center}
+.sel select{cursor:pointer;padding-right:24px}
+.sel svg{position:absolute;right:2px;pointer-events:none}
+.hint{margin:0;font-size:13px;color:var(--graphite)}
+.err{margin:0;font-size:13px;color:var(--red)}
+.qf-a{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:8px}
+.qf-n{margin:0;font-size:13px;color:var(--graphite)}
+.qf-done{display:flex;flex-direction:column;gap:14px;padding:32px 0;border-top:1px solid var(--ink)}
+.qf-done h3{margin:0;font-size:24px;font-weight:500;letter-spacing:-.02em}
+.qf-done p{margin:0;color:var(--graphite);max-width:34em}
+.qf-done .alink{all:unset;cursor:pointer;display:inline-flex;align-self:flex-start;font-size:15px;font-weight:500;border-bottom:1px solid var(--rule);padding-block:4px}
+.qf-done .alink:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+</style>
