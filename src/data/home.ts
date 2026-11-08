@@ -25,7 +25,7 @@ export const hero = {
 // The product wheel: one station per product line, in order.
 export const productLines = {
   title: 'Standard spindles and accessories',
-  cta: { label: 'View all spindles', href: urls.products },
+  cta: { label: 'View Standard Spindles', href: urls.products },
   lines: [
     {
       key: 'blockhead',
@@ -38,9 +38,6 @@ export const productLines = {
         { value: '60–350 N/µm', label: 'Radial stiffness across the series' },
         { value: '15,000 rpm', label: 'Rated speed of the 3R' },
       ],
-      chips: ['3R', '4B', '4R', '4R 225', '10B', '10R', '10R 606'],
-      featured: '4R',
-      note: 'New to Blockheads? The 4R is one of our most popular models and typically the best place to start.',
     },
     {
       key: 'iso',
@@ -53,7 +50,6 @@ export const productLines = {
         { value: '50,000 rpm', label: 'ISO 2.25 (50K), water-cooled' },
         { value: '250 lb (115 kg)', label: 'Ultimate radial load, ISO 5.5F and 5.5PG' },
       ],
-      chips: ['ISO 2.25 (50K)', 'ISO 3R DB400', 'ISO 3.375PG', 'ISO 5.5F', 'ISO 5.5PG'],
     },
     {
       key: '4rh',
@@ -66,7 +62,6 @@ export const productLines = {
         { value: '2,000 lb (9 kN)', label: 'Axial capacity' },
         { value: '3,500 rpm', label: 'Maximum speed' },
       ],
-      details: '/products#4rh',
     },
     {
       key: 'accessories',
@@ -78,7 +73,6 @@ export const productLines = {
         { value: '120 + 80 grit', label: 'Standard GF-5 flatstone pair' },
         { value: '46 grit', label: 'Open-bond option for aluminum workpieces' },
       ],
-      chips: ['GF-5 Flatstones', 'Attachments'],
     },
   ],
 };
