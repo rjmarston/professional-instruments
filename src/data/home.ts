@@ -2,6 +2,8 @@
 import { urls, site } from './site';
 
 export const hero = {
+  // The large logo leads the hero; the header leaves its logo off on the homepage.
+  logo: { src: '/images/logo-lg.webp', width: 300, height: 152 },
   title: 'The world’s most accurate air bearing spindles and slides',
   lede: 'For customers who require millionth-inch precision, high stiffness, and zero friction.',
   primary: 'Explore spindles',

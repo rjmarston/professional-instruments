@@ -59,32 +59,31 @@ export const applicationLinks = [
   { name: 'Grinding', slug: 'grinding' },
 ];
 
-type MenuItem = { name: string; detail?: string; href: string };
-type Menu = { label: string; key: string; href: string; items: MenuItem[]; more?: { label: string; href: string } };
+type MenuItem = { name: string; href: string };
+type Menu = { label: string; key: string; href: string; items: MenuItem[] };
 
 // Main menu. The label goes to `href`; the arrow beside it opens the list of `items`.
+// Menu lists hold links only: no descriptions under the names and no buttons.
 export const menus: Menu[] = [
   {
     label: 'Products',
     key: 'products',
     href: urls.products,
     items: [
-      { name: 'Blockhead series', detail: '7 models · 1 µin (25 nm)', href: '/products#blockhead' },
-      { name: 'ISO series', detail: '5 models · to 50,000 rpm', href: '/products#iso' },
-      { name: '4RH oil hydrostatic', detail: 'Biconic · 2,000 lb axial', href: '/products#4rh' },
-      { name: 'Accessories', detail: 'GF-5 Flatstones and attachments', href: '/products#accessories' },
+      { name: 'Blockhead series', href: '/products#blockhead' },
+      { name: 'ISO series', href: '/products#iso' },
+      { name: '4RH oil hydrostatic', href: '/products#4rh' },
+      { name: 'Accessories', href: '/products#accessories' },
     ],
-    more: { label: 'View all spindles', href: urls.products },
   },
   {
     label: 'Services',
     key: 'services',
     href: '/#services',
     items: [
-      { name: 'Precision engineering', detail: 'Custom air bearing spindles', href: '/#engineering' },
-      { name: 'Precision manufacturing', detail: 'Grinding and diamond machining to order', href: '/#manufacturing' },
+      { name: 'Precision engineering', href: '/#engineering' },
+      { name: 'Precision manufacturing', href: '/#manufacturing' },
     ],
-    more: { label: 'Request a quote', href: urls.quote },
   },
   {
     label: 'Applications',
@@ -98,8 +97,8 @@ export const menus: Menu[] = [
     href: '/#resources',
     items: [
       { name: 'Brochures and drawings', href: '/#resources' },
-      { name: 'Technical posters', detail: '87 posters, 2004 to 2026', href: '/about#research' },
-      { name: 'Videos', detail: 'YouTube', href: site.social.youtube },
+      { name: 'Technical posters', href: '/about#research' },
+      { name: 'Videos', href: site.social.youtube },
     ],
   },
   {
@@ -108,10 +107,9 @@ export const menus: Menu[] = [
     href: urls.about,
     items: [
       { name: 'Who we are', href: '/about#company' },
-      { name: 'History', detail: 'Since 1946', href: '/about#history' },
+      { name: 'History', href: '/about#history' },
       { name: 'The shop', href: '/about#shop' },
     ],
-    more: { label: 'Contact us', href: urls.contact },
   },
 ];
 

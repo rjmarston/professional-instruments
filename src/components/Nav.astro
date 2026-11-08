@@ -3,16 +3,23 @@
 // With a mouse, hovering opens the list too. Below 1080px everything folds into a full-height menu.
 import { menus, site, urls } from '../data/site';
 import Button from './Button.astro';
-import ArrowLink from './ArrowLink.astro';
 
-interface Props { active?: string }
-const { active = '' } = Astro.props;
+interface Props {
+  active?: string;
+  /** False on the homepage, where the hero carries the large logo. The slot stays so the menu doesn't move. */
+  logo?: boolean;
+}
+const { active = '', logo = true } = Astro.props;
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
 ---
 
 <header class="site-h wrap">
   <div class="in">
-    <a href="/" aria-label="Professional Instruments Company home"><img src="/images/logo.webp" alt="Professional Instruments Company" width="118" height="60" /></a>
+    {logo ? (
+      <a href="/" class="logo" aria-label="Professional Instruments Company home"><img src="/images/logo.webp" alt="Professional Instruments Company" width="118" height="60" /></a>
+    ) : (
+      <span class="logo" aria-hidden="true"></span>
+    )}
     <nav class="site-nav" id="site-nav" aria-label="Main">
       <ul class="nv-l">
         {menus.map((m) => (
@@ -26,10 +33,9 @@ const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/'
             <div class="nv-p" id={`m-${m.key}`} hidden>
               <ul>
                 {m.items.map((i) => (
-                  <li><a href={i.href}><span class="nv-n">{i.name}</span>{i.detail && <span class="nv-d">{i.detail}</span>}</a></li>
+                  <li><a href={i.href}><span class="nv-n">{i.name}</span></a></li>
                 ))}
               </ul>
-              {m.more && <ArrowLink label={m.more.label} href={m.more.href} />}
             </div>
           </li>
         ))}
@@ -155,7 +161,8 @@ const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/'
 <style is:global>
 .site-h{position:relative;z-index:30;background:var(--white)}
 .site-h .in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px;padding-block:14px}
-.site-h img{display:block;width:118px;height:60px}
+.site-h .logo{display:block;flex:none;width:118px;height:60px}
+.site-h .logo img{display:block;width:118px;height:60px}
 .site-h .act{display:flex;align-items:center;gap:20px}
 .site-h .tel{font-family:var(--mono);font-size:14px;white-space:nowrap}
 /* main menu: each item opens a panel hung from the header rule */
@@ -177,11 +184,9 @@ const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/'
 .nv-p::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:28px}
 @keyframes nv-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .nv-p ul{list-style:none;margin:0;padding:0}
-.nv-p li a{display:flex;flex-direction:column;gap:3px;padding:11px 0;border-bottom:.5px solid var(--hair);text-decoration:none}
+.nv-p li a{display:block;padding:11px 0;border-bottom:.5px solid var(--hair);text-decoration:none}
 .nv-n{font-size:15px;font-weight:500;line-height:1.3}
-.nv-d{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--graphite)}
 .nv-p li a:hover .nv-n{color:var(--red)}
-.nv-p .alink{font-size:14px}
 .nv-foot{display:none}
 .menu-b{all:unset;box-sizing:border-box;cursor:pointer;display:none;flex:none;width:44px;height:44px;border:.5px solid var(--ink);flex-direction:column;align-items:center;justify-content:center;gap:7px}
 .menu-b span{display:block;width:18px;height:1px;background:var(--ink);transition:transform .18s ease}

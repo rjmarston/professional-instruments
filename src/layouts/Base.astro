@@ -19,6 +19,8 @@ interface Props {
   cta?: false | { title?: string; text?: string };
   ogType?: string;
   mainClass?: string;
+  /** Show the logo in the header. The homepage turns it off because the hero carries the large logo. */
+  navLogo?: boolean;
 }
 
 const {
@@ -32,6 +34,7 @@ const {
   cta = {},
   ogType = 'website',
   mainClass,
+  navLogo = true,
 } = Astro.props;
 
 // Anywhere but airbearings.com (the rjmarston.com preview, workers.dev, branch previews), keep every page out of search.
@@ -96,7 +99,7 @@ const org = {
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <Nav active={active} />
+    <Nav active={active} logo={navLogo} />
     <main id="main" class={mainClass}>
       <slot />
       {cta !== false && <Cta title={cta.title} text={cta.text} />}
