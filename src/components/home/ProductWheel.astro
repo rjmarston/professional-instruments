@@ -5,10 +5,8 @@
 import Button from '../Button.astro';
 import WheelPlate from './WheelPlate.astro';
 import { productLines, hero } from '../../data/home';
-import { modelHref } from '../../data/products';
 
 const lines = productLines.lines;
-const chipHref = (c: string) => (c === 'Attachments' || c === 'GF-5 Flatstones' ? '/products#accessories' : modelHref(c));
 ---
 
 <section id="products" class="scene" aria-label={productLines.title}>
@@ -34,20 +32,6 @@ const chipHref = (c: string) => (c === 'Attachments' || c === 'GF-5 Flatstones' 
                   <h3 id={`h-${l.key}`}>{l.name}</h3>
                   <p class="desc">{l.desc}</p>
                   <dl class="specs">{l.specs.map((s) => <div><dt>{s.value}</dt><dd>{s.label}</dd></div>)}</dl>
-                  {l.chips && (
-                    <div class="chips">
-                      {l.chips.map((c) => (
-                        <a href={chipHref(c)} class="chip">
-                          {c === l.featured && (
-                            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.5" class="dot-f"></circle><circle cx="6" cy="6" r="5.25" class="dot-r"></circle></svg>
-                          )}
-                          {c}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                  {l.details && <div class="details"><Button label="View details" href={l.details} kind="line" small /></div>}
-                  {l.note && <p class="note">{l.note}</p>}
                 </article>
               ))}
             </div>
@@ -361,12 +345,6 @@ const chipHref = (c: string) => (c === 'Attachments' || c === 'GF-5 Flatstones' 
 .specs div{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:16px;padding:10px 0;border-bottom:.5px solid var(--hair);align-items:baseline}
 .specs dt{font-family:var(--mono);font-size:15px;white-space:nowrap}
 .specs dd{margin:0;font-size:14px;color:var(--graphite)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.details{display:flex}
-.chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 11px;border:.5px solid var(--rule);font-family:var(--mono);font-size:12px;text-decoration:none;white-space:nowrap;background:var(--white)}
-.chip:hover{border-color:var(--ink)}
-.dot-f{fill:var(--red)} .dot-r{fill:none;stroke:var(--red);stroke-width:.75}
-.note{margin:0;font-size:14px;line-height:1.5;color:var(--graphite)}
 .stops-w{display:flex;flex-direction:column;gap:20px}
 .scene-cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
 .stops{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -387,7 +365,6 @@ const chipHref = (c: string) => (c === 'Attachments' || c === 'GF-5 Flatstones' 
   .stops-w{gap:12px}
   .scene-cta .btn{height:44px;font-size:14px}
   .panel h3{font-size:32px}
-  .chips,.note{display:none}
   .desc{font-size:15px}
   /* the plate fades out behind the copy so its rings don't run through the text */
   .copy-col{position:relative;z-index:0}
