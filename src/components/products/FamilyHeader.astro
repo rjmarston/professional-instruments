@@ -1,17 +1,21 @@
 ---
-// Every product line opens the same way: the product on its plate, three key figures, one paragraph.
+// Each product family: the product on its plate, and the family's one paragraph beside it.
+// Accessories, which have no table, also show a row of figures.
 import StagePlate from '../StagePlate.astro';
 import Facts from '../Facts.astro';
+import ValueText from '../Value.astro';
+import ArrowLink from '../ArrowLink.astro';
 import type { Value } from '../../data/products';
 
-interface Props { image: { src: string; alt: string }; facts: { value: Value; label: string }[]; text: string }
-const { image, facts, text } = Astro.props;
+interface Props { image: { src: string; alt: string }; facts?: { value: Value; label: string }[]; text: Value[]; link?: { label: string; href: string } }
+const { image, facts, text, link } = Astro.props;
 ---
 
 <div class="fam">
   <StagePlate src={image.src} alt={image.alt} />
   <div class="fam-t">
-    <Facts items={facts} />
-    <p class="svc-d">{text}</p>
+    {facts?.length && <Facts items={facts} />}
+    <p class="fam-d">{text.map((t) => <ValueText v={t} />)}</p>
+    {link && <div class="fam-a"><ArrowLink label={link.label} href={link.href} /></div>}
   </div>
 </div>

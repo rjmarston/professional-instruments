@@ -1,0 +1,10 @@
+# Old airbearings.com (Google Sites) addresses, sent to their new pages. Cloudflare reads this file.
+# Family pages aren't built yet, so the family addresses go to that family on the products page.
+/products/air-bearings                                   /products              301
+/products/air-bearings/blockheads                        /products#blockhead    301
+/products/air-bearings/blockheads/4-inch-blockheads      /products#blockhead    301
+/products/air-bearings/blockheads/10-inch-blockheads     /products#blockhead    301
+/products/air-bearings/iso-spindles                      /products#iso          301
+/products/air-bearings/iso-spindles/iso-5-5-spindle      /products#iso          301
+/products/blockhead                                      /products#blockhead    301
+/products/iso                                            /products#iso          301

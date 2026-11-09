@@ -34,7 +34,6 @@ const pos = (y: number) => `${(((y - pursuit.from) / (pursuit.to - pursuit.from)
         </svg>
         <span class="yr-ix" aria-hidden="true"></span>
       </div>
-      <div class="yr-ends"><span>Since {pursuit.from}</span><span>{pursuit.to}</span></div>
     </div>
   </div>
 </section>
@@ -72,8 +71,6 @@ const pos = (y: number) => `${(((y - pursuit.from) / (pursuit.to - pursuit.from)
 .yr-end{stroke:var(--ink);stroke-width:1}
 .yr-lab{font-family:var(--mono);font-size:12px;fill:var(--graphite)}
 .yr-ix{position:absolute;left:0;top:-14px;width:1.5px;height:34px;margin-left:-.75px;background:var(--red);will-change:transform}
-.yr-read{position:absolute;left:0;bottom:calc(100% + 16px);will-change:transform}
-.yr-y{display:block;transform:translateX(-50%);font-family:var(--mono);font-size:13px;color:var(--red);font-variant-numeric:tabular-nums}
-.yr-ends{display:flex;justify-content:space-between;margin-top:14px;font-family:var(--mono);font-size:13px;letter-spacing:.02em}
-.yr-ends span:last-child{color:var(--graphite)}
+.yr-read{position:absolute;left:0;width:0;bottom:calc(100% + 16px);will-change:transform}
+.yr-y{display:block;width:max-content;transform:translateX(-50%);font-family:var(--mono);font-size:13px;color:var(--red);font-variant-numeric:tabular-nums}
 </style>

@@ -19,12 +19,11 @@ import { urls } from '../data/site';
   {families.map((f) => (
     <section id={f.id} class="sec anchor wrap" aria-labelledby={`${f.id}-h`}>
       <div class="in">
-        <SectionHead id={`${f.id}-h`} title={f.title} intro={f.intro} />
-        <FamilyHeader image={f.image} facts={f.facts} text={f.text} />
+        <SectionHead id={`${f.id}-h`} title={f.title} />
+        <FamilyHeader image={f.image} facts={f.facts} text={f.text} link={f.link} />
         {f.table && <SpecTable {...f.table} />}
         {f.id === 'accessories' && (
           <div class="acc-g">
-            <div class="mini"><TickRule /><h3>{accessories.flatstones.title}</h3><p>{accessories.flatstones.text}</p><ArrowLink label="Details" href={accessories.flatstones.href} /></div>
             <div class="mini">
               <TickRule /><h3>{accessories.attachments.title}</h3><p>{accessories.attachments.text}</p>
               <ul class="lst">{accessories.attachments.list.map((a) => <li>{a}</li>)}</ul>
@@ -46,9 +45,6 @@ import { urls } from '../data/site';
             <div class="pp-a"><Button label={custom.cta.label} href={custom.cta.href} kind="line" /></div>
           </div>
         </div>
-        <div class="cust-f">
-          {custom.figures.map((f) => <div class="cf"><TickRule /><span class="n">{f.value}</span><span class="c">{f.label}</span></div>)}
-        </div>
       </div>
     </div>
   </section>
@@ -59,10 +55,4 @@ import { urls } from '../data/site';
 .acc-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:113px;row-gap:48px}
 .acc-g .lst{margin-top:6px}
 @media (max-width:860px){.acc-g{grid-template-columns:minmax(0,1fr)}}
-.cust-f{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:113px;row-gap:40px;margin-top:88px}
-@media (max-width:860px){.cust-f{grid-template-columns:minmax(0,1fr);margin-top:56px}}
-.cf{display:flex;flex-direction:column;gap:10px}
-.cf .tickrule{margin-bottom:12px}
-.cf .n{font-family:var(--mono);font-size:clamp(32px,3.6vw,52px);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.cf .c{font-size:14px;color:var(--graphite)}
 </style>

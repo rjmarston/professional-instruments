@@ -23,10 +23,8 @@ const chev = '<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><po
           <div class="cd">
             <TickRule /><h2>Address</h2>
             <p>{site.name}<br />{site.address.street}<br />{site.address.city}, {site.address.region} {site.address.postalCode} {site.address.country}</p>
-            <p class="coord">{site.coords.label}</p>
             <ArrowLink label="Open in Google Maps" href={site.mapUrl} />
           </div>
-          <div class="cd"><TickRule /><h2>Follow</h2><p class="links"><a href={site.social.youtube}>YouTube</a><a href={site.social.linkedin}>LinkedIn</a></p></div>
         </div>
 
         <div id="quote" class="ct-f anchor">
@@ -49,8 +47,7 @@ const chev = '<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><po
               <label for="q-app">Application</label>
               <div class="sel"><select id="q-app" name="application"><option value="">Choose one</option>{form.applications.map((a) => <option value={a}>{a}</option>)}<option value="other">Other</option></select><Fragment set:html={chev} /></div>
             </div>
-            <div class="f full"><label for="q-req">Requirements</label><p class="hint" id="q-req-h">{form.requirementsHint}</p><textarea id="q-req" name="requirements" rows="3" aria-describedby="q-req-h"></textarea></div>
-            <div class="f full"><label for="q-msg">Anything else</label><textarea id="q-msg" name="message" rows="3"></textarea></div>
+            <div class="f full"><label for="q-req">Requirements</label><p class="hint" id="q-req-h">{form.requirementsHint}</p><textarea id="q-req" name="requirements" rows="5" aria-describedby="q-req-h"></textarea></div>
             <div class="qf-a full"><Button label={form.submit} submit /><p class="qf-n">Fields marked <span class="req">*</span> are required.</p></div>
           </form>
           <div class="qf-done" id="quote-done" hidden tabindex="-1">
@@ -121,9 +118,6 @@ const chev = '<svg width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><po
 .cd h2{margin:0;font-size:14px;font-weight:600}
 .cd p{margin:0;font-size:16px;line-height:1.6}
 .mono-l{font-family:var(--mono);font-size:20px!important;letter-spacing:-.01em;user-select:all}
-.coord{font-family:var(--mono);font-size:13px!important;color:var(--graphite)}
-.cd .links{display:flex;gap:24px}
-.cd .links a{text-decoration:none;border-bottom:1px solid var(--rule)} .cd .links a:hover{border-color:var(--red)}
 .ct-f{display:flex;flex-direction:column;gap:40px;min-width:0}
 .ct-f .sh h2{font-size:clamp(28px,2.8vw,40px)}
 .qf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px 40px}
