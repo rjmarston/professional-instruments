@@ -5,7 +5,7 @@ export const site = {
   // The company's real address, used in structured data even while the site is previewed elsewhere.
   url: 'https://www.airbearings.com',
   description:
-    'Professional Instruments makes the world’s most accurate air bearing spindles and slides, for millionth-inch precision, high stiffness and zero friction.',
+    'Professional Instruments makes the world’s most accurate air bearing spindles, for millionth-inch precision, high stiffness and zero friction.',
   phone: '(952) 933-1222',
   phoneIntl: '+1-952-933-1222',
   email: 'sales@airbearings.com',
@@ -16,7 +16,7 @@ export const site = {
     postalCode: '55343',
     country: 'USA',
   },
-  coords: { lat: 44.929351, lng: -93.376439, label: '44.929351° N, 93.376439° W' },
+  coords: { lat: 44.929351, lng: -93.376439 },
   mapUrl: 'https://www.google.com/maps/search/?api=1&query=44.929351,-93.376439',
   founded: '1946',
   social: {
@@ -43,10 +43,10 @@ export const notBuilt = '#';
 export const urls = {
   home: '/',
   products: '/products',
-  product4r: '/products/blockhead/4r',
   about: '/about',
   contact: '/contact',
   quote: '/contact#quote',
+  posters: '/resources/posters',
 };
 
 export const applicationLinks = [
@@ -96,7 +96,7 @@ export const menus: Menu[] = [
     href: '/#resources',
     items: [
       { name: 'Brochures and drawings', href: '/#resources' },
-      { name: 'Technical posters', href: '/about#research' },
+      { name: 'Technical posters', href: urls.posters },
       { name: 'Videos', href: site.social.youtube },
     ],
   },
@@ -119,8 +119,7 @@ export const footerNav = [
       { label: 'Blockhead series', href: '/products#blockhead' },
       { label: 'ISO series', href: '/products#iso' },
       { label: '4RH oil hydrostatic', href: '/products#4rh' },
-      { label: 'GF-5 Flatstones', href: '/products#accessories' },
-      { label: 'Attachments', href: '/products#accessories' },
+      { label: 'Accessories', href: '/products#accessories' },
       { label: 'View all spindles', href: urls.products },
     ],
   },
@@ -140,7 +139,7 @@ export const footerNav = [
     title: 'Resources',
     links: [
       { label: 'Brochures and drawings', href: '/#resources' },
-      { label: 'Posters', href: '/about#research' },
+      { label: 'Posters', href: urls.posters },
       { label: 'Videos', href: site.social.youtube },
     ],
   },
@@ -150,6 +149,7 @@ export const footerNav = [
       { label: 'About', href: urls.about },
       { label: 'History', href: '/about#history' },
       { label: 'Contact', href: urls.contact },
+      { label: 'LinkedIn', href: site.social.linkedin },
     ],
   },
 ];

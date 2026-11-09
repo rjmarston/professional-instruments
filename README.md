@@ -11,7 +11,10 @@ The new airbearings.com for Professional Instruments Company: air bearing spindl
 | Which homepage hero shows, and the A/B switch | `src/data/site.ts` (`hero`) |
 | Homepage copy: hero, product wheel, services, applications, timeline, resources | `src/data/home.ts` |
 | Product hub copy and every model's specs | `src/data/products.ts` |
-| The 4R page (the template for model pages) | `src/data/models/4r.ts`, `src/pages/products/blockhead/4r.astro` |
+| Model pages: one file per model (figures, copy, images, related models) | `src/data/models/` (listed in `index.ts`) |
+| The model page layout | `src/components/products/ModelPage.astro` |
+| Technical posters: the full list (all 87) | `src/data/poster-list.ts` |
+| Technical posters with their own page: one Markdown file each, text copied word for word from the poster | `src/data/posters/` (figures in `public/images/posters/`) |
 | About and Contact copy, quote form options | `src/data/about.ts`, `src/data/contact.ts` |
 | Colors and fonts | `src/styles/tokens.css` |
 | Shared styles: layout, buttons, section heads, rules, figures, lists | `src/styles/global.css` |
@@ -25,7 +28,11 @@ The new airbearings.com for Professional Instruments Company: air bearing spindl
 | --- | --- |
 | `/` | Homepage |
 | `/products` | All spindles and accessories, with comparison tables and an inch / metric switch |
-| `/products/blockhead/4r` | 4R Blockhead. Every model links here until its own page is built |
+| `/products/blockhead/3r`, `/4b`, `/4r`, `/4r-225`, `/10b`, `/10r`, `/10r-606` | Blockhead model pages |
+| `/products/iso/iso-2-25`, `/iso-3r-db400`, `/iso-3-375pg`, `/iso-5-5f`, `/iso-5-5pg` | ISO model pages |
+| `/products/4rh-oil-hydrostatic`, `/products/flatstones` | 4RH and GF-5 Flatstones |
+| `/resources/posters` | Every technical poster, by year |
+| `/resources/posters/<name>` | A poster as a web page (six so far) |
 | `/about` | Who we are, history, the shop, technical posters |
 | `/contact` | Contact details and the quote form |
 
@@ -61,13 +68,15 @@ rjmarston.com has to be in the same Cloudflare account for the custom domains to
 
 1. In `astro.config.mjs`, set `SITE_URL` to `https://www.airbearings.com`. That alone removes the noindex tags and header and brings back the sitemap.
 2. In `wrangler.jsonc`, swap the rjmarston.com routes for airbearings.com and www.airbearings.com (after moving airbearings.com's DNS to Cloudflare).
-3. Redirect the old Google Sites URLs and shared PDF links to their new homes (the content inventory lists every old URL).
+3. Redirect the old Google Sites URLs and shared PDF links to their new homes (the content inventory lists every old URL). The old product URLs are already in `public/_redirects`; add the rest there.
 
 ## Not done yet
 
 - **Quote form.** It checks the fields and shows a confirmation, but doesn't send anywhere. Who receives quote requests is a question for PI. Then add a handler (for example a Cloudflare Worker that emails sales@airbearings.com).
-- **Model pages.** Only the 4R exists. Every other model, and the GF-5 Flatstones, links to it for now (`modelHref` in `src/data/products.ts`).
+- **Model pages.** Every standard model, the 4RH and the GF-5 Flatstones have a page, built from the brochures. Family pages (`/products/blockhead`, `/products/iso`) and an Attachments page aren't built; the family addresses redirect to the products page. ISO 5.5F and 5.5PG are two pages until PI decides whether they should be one.
+- **Technical posters.** Six of the 87 have their own page (a pilot); the rest link to their PDF on Google Drive. To add one, copy its text word for word into a new Markdown file in `src/data/posters/` and crop its figures into `public/images/posters/<name>/`. The 2018 Blockhead history poster says PI was established in 1947; the rest of the site says 1946. Poster text is kept as printed, so a few posters use "BLOCK-HEAD", "porous graphite" or "&" where the site's own copy wouldn't.
+- **Linear slides.** "Slides" is left out of the homepage headline, site description and About until PI confirms they are still offered. The history and shop text still mention them as past products and in-house equipment.
 - **Pages linked as "not built yet".** Application pages, the two service pages, the brochure library and the privacy policy. Links to them use `#` and show a short notice.
 - **Documents.** Brochures, drawings, the operator's manual, terms and the posters are still on Google Drive. Host them on this site when the library is built.
 - **Hero.** PI is choosing between the two homepage heroes. When they pick, set `hero.default` and turn `hero.showToggle` off in `src/data/site.ts`.
-- **Facts to confirm with PI.** 4R total weight (18 or 19 lb), the converted 10R 606 aperture (154 mm), the history details on the About page, and the other open questions in the review doc.
+- **Facts to confirm with PI.** 4R total weight (18 or 19 lb); 10R 606 ultimate tilt load (brochure 1,850 lb·in, Blockhead overview 1,800 lb·in); 10B material (brochure says stainless steel, drawing says mild steel, so the page leaves it out); the supply pressure for the ISO 2.25 (50K) figures (not stated in its brochure); the history details on the About page; and the other open questions in the review doc.

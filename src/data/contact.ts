@@ -19,7 +19,7 @@ export const contact = {
     ],
     models: allModels,
     applications: applications.items.map((a) => a.name),
-    requirementsHint: 'Load, speed, accuracy, environment, quantity.',
+    requirementsHint: 'Load, speed, accuracy, environment, quantity, and anything else we should know.',
     submit: 'Send request',
     // The form doesn't send anywhere yet. Who receives quote requests is an open question for PI.
     done: {

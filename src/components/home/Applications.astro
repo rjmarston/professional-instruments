@@ -10,8 +10,16 @@ import { notBuilt } from '../../data/site';
   <div class="in">
     <SectionHead id="app-h" title={applications.title} />
     <div class="apps">
-      {applications.items.map((a) => (
-        <a href={notBuilt} class="app" id={`app-${a.slug}`}><TickRule /><span class="app-n">{a.name}</span><span class="app-d">{a.desc}</span></a>
+      {applications.groups.map((group) => (
+        <section class="app-group" aria-labelledby={`app-group-${group.id}`}>
+          <TickRule />
+          <h3 id={`app-group-${group.id}`}>{group.title}</h3>
+          <ul>
+            {applications.items.filter((a) => a.group === group.id).map((a) => (
+              <li><a href={notBuilt} class="app" id={`app-${a.slug}`}><span class="app-n">{a.name}</span><span class="app-d">{a.desc}</span></a></li>
+            ))}
+          </ul>
+        </section>
       ))}
       <a href={applications.other.href} class="app app-all"><TickRule /><span class="app-n">{applications.other.title} <Arrow /></span><span class="app-d">{applications.other.desc}</span></a>
     </div>
@@ -20,11 +28,19 @@ import { notBuilt } from '../../data/site';
 
 <style is:global>
 /* applications */
-.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:40px 32px}
-.app{display:flex;flex-direction:column;gap:10px;text-decoration:none;min-width:0;scroll-margin-top:40px}
-.app .tickrule{margin-bottom:8px}
-.app-n{font-size:20px;line-height:1.25;font-weight:500;letter-spacing:-.015em}
+.apps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 32px}
+.app-group{min-width:0}
+.app-group>.tickrule{margin-bottom:8px}
+.app-group h3{margin:0 0 12px;font-size:17px;line-height:1.3;font-weight:500}
+.app-group ul{list-style:none;margin:0;padding:0;border-top:.5px solid var(--hair)}
+.app-group li{border-bottom:.5px solid var(--hair)}
+.app{display:flex;flex-direction:column;gap:5px;padding:11px 0;text-decoration:none;min-width:0;scroll-margin-top:40px}
+.app-n{font-size:16px;line-height:1.25;font-weight:500}
 .app-d{font-size:14px;line-height:1.5;color:var(--graphite)}
-.app:hover .app-n{color:var(--red)} .app:hover .tr-major{stroke:var(--red)}
+.app:hover .app-n{color:var(--red)}
+.app-all{grid-column:1/-1;border-top:.5px solid var(--hair);padding-top:16px}
+.app-all .tickrule{margin-bottom:8px}
 .app-all .app-n{display:inline-flex;align-items:center;gap:10px}
+@media (max-width:900px){.apps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.apps{grid-template-columns:1fr;gap:28px}}
 </style>

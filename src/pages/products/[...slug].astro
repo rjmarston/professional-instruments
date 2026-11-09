@@ -1,0 +1,15 @@
+---
+// Builds a page for every model in src/data/models, at the address in its `slug`.
+import ModelPage from '../../components/products/ModelPage.astro';
+import { models } from '../../data/models';
+import type { Model } from '../../data/models/types';
+
+export function getStaticPaths() {
+  return models.map((model) => ({ params: { slug: model.slug.replace(/^\/products\//, '') }, props: { model } }));
+}
+
+interface Props { model: Model }
+const { model } = Astro.props;
+---
+
+<ModelPage model={model} />

@@ -2,7 +2,8 @@
 import { urls, site } from './site';
 
 export const hero = {
-  title: 'The world’s most accurate air bearing spindles and slides',
+  // Slides are left out until PI confirms they are still offered.
+  title: 'The world’s most accurate air bearing spindles',
   lede: 'For customers who require millionth-inch precision, high stiffness, and zero friction.',
   primary: 'Explore spindles',
   secondary: { label: 'View services', href: '#services' },
@@ -25,18 +26,18 @@ export const hero = {
 // The product wheel: one station per product line, in order.
 export const productLines = {
   title: 'Standard spindles and accessories',
-  cta: { label: 'View Standard Spindles', href: urls.products },
+  cta: { label: 'View standard spindles', href: urls.products },
   lines: [
     {
       key: 'blockhead',
       name: 'Blockhead series',
       short: 'Blockhead',
       image: { src: '/images/4r.webp', width: 900, height: 837 },
-      desc: 'High axial load capacity in a compact size, offered since 1965. Seven universal spindles in three package sizes, from the 3 inch 3R to the 10 inch 10R 606.',
+      desc: 'High axial load capacity in compact 3, 4 and 10 inch package sizes.',
       specs: [
         { value: '1 µin (25 nm)', label: 'Synchronous error, radial and axial, every model' },
         { value: '60–350 N/µm', label: 'Radial stiffness across the series' },
-        { value: '15,000 rpm', label: 'Rated speed of the 3R' },
+        { value: '115–1,600 lb', label: 'Ultimate axial load across the series (50–725 kg)' },
       ],
     },
     {
@@ -85,7 +86,7 @@ export const services = {
       id: 'engineering',
       name: 'Precision engineering',
       image: { src: '/images/eng.webp', width: 672, height: 480, alt: 'PI engineers reviewing a drawing' },
-      desc: 'When a specification falls outside our standard lines, our engineers design and build a spindle for the application. Custom spindle making at PI goes back almost to the beginning in 1946.',
+      desc: 'When a specification falls outside our standard lines, our engineers design and build a spindle for the application.',
       list: [
         'Custom air bearing spindles, designed to the application',
         'Hemispherical, dual diameter, air pad and vacuum-rated designs',
@@ -120,14 +121,19 @@ export const services = {
 
 export const applications = {
   title: 'Applications',
+  groups: [
+    { id: 'testing', title: 'Testing and metrology' },
+    { id: 'machining', title: 'Machining' },
+    { id: 'motion', title: 'Motion and scanning' },
+  ],
   items: [
-    { slug: 'disk-testing', name: 'Disk testing and pack writing', desc: 'Sub-microinch asynchronous error motion, the rotational reference for memory disk testing.' },
-    { slug: 'roundness-flatness', name: 'Roundness and flatness testing', desc: 'Runout, concentricity and squareness on IDs, ODs and faces, to one microinch.' },
-    { slug: 'workheads', name: 'Machine tool workheads', desc: 'Face, turn and bore to better than ten microinches, with specular finishes.' },
-    { slug: 'bearing-analysis', name: 'Bearing analysis', desc: 'Noise signature, runout and asynchronous error motion.' },
-    { slug: 'pivots-indexers', name: 'Precision pivots and indexers', desc: 'Pneumo-lock fixes the rotor without introducing rotational error.' },
-    { slug: 'optical-scanners', name: 'Optical scanner spindles', desc: 'High rotational accuracy, no torque ripple, low thermal excursion.' },
-    { slug: 'grinding', name: 'Grinding spindles', desc: 'Minimal sub-surface damage, so less polishing afterwards.' },
+    { group: 'testing', slug: 'disk-testing', name: 'Disk testing and pack writing', desc: 'Sub-microinch asynchronous error motion, the rotational reference for memory disk testing.' },
+    { group: 'testing', slug: 'roundness-flatness', name: 'Roundness and flatness testing', desc: 'Runout, concentricity and squareness on IDs, ODs and faces, to one microinch.' },
+    { group: 'machining', slug: 'workheads', name: 'Machine tool workheads', desc: 'Face, turn and bore to better than ten microinches, with specular finishes.' },
+    { group: 'testing', slug: 'bearing-analysis', name: 'Bearing analysis', desc: 'Noise signature, runout and asynchronous error motion.' },
+    { group: 'motion', slug: 'pivots-indexers', name: 'Precision pivots and indexers', desc: 'Pneumo-lock fixes the rotor without introducing rotational error.' },
+    { group: 'motion', slug: 'optical-scanners', name: 'Optical scanner spindles', desc: 'High rotational accuracy, no torque ripple, low thermal excursion.' },
+    { group: 'machining', slug: 'grinding', name: 'Grinding spindles', desc: 'Minimal sub-surface damage, so less polishing afterwards.' },
   ],
   other: { title: 'Don’t see your application?', desc: 'Describe it in a quote request.', href: urls.quote },
 };
@@ -144,6 +150,6 @@ export const resources = {
   title: 'Resources',
   items: [
     { title: 'Brochures and drawings', desc: 'The brochure and drawing for every standard model, in one library.', link: 'Open the library', href: '#' },
-    { title: 'Technical posters', desc: '87 posters, most presented at ASPE and euspen meetings, 2004 to 2026.', link: 'Browse posters', href: site.docs.posters },
+    { title: 'Technical posters', desc: 'Spindle error motion, grinding, turning and surface preparation, most presented at ASPE and euspen meetings.', link: 'Browse posters', href: urls.posters },
   ],
 };
