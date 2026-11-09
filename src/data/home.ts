@@ -120,14 +120,19 @@ export const services = {
 
 export const applications = {
   title: 'Applications',
+  groups: [
+    { id: 'testing', title: 'Testing and metrology' },
+    { id: 'machining', title: 'Machining' },
+    { id: 'motion', title: 'Motion and scanning' },
+  ],
   items: [
-    { slug: 'disk-testing', name: 'Disk testing and pack writing', desc: 'Sub-microinch asynchronous error motion, the rotational reference for memory disk testing.' },
-    { slug: 'roundness-flatness', name: 'Roundness and flatness testing', desc: 'Runout, concentricity and squareness on IDs, ODs and faces, to one microinch.' },
-    { slug: 'workheads', name: 'Machine tool workheads', desc: 'Face, turn and bore to better than ten microinches, with specular finishes.' },
-    { slug: 'bearing-analysis', name: 'Bearing analysis', desc: 'Noise signature, runout and asynchronous error motion.' },
-    { slug: 'pivots-indexers', name: 'Precision pivots and indexers', desc: 'Pneumo-lock fixes the rotor without introducing rotational error.' },
-    { slug: 'optical-scanners', name: 'Optical scanner spindles', desc: 'High rotational accuracy, no torque ripple, low thermal excursion.' },
-    { slug: 'grinding', name: 'Grinding spindles', desc: 'Minimal sub-surface damage, so less polishing afterwards.' },
+    { group: 'testing', slug: 'disk-testing', name: 'Disk testing and pack writing', desc: 'Sub-microinch asynchronous error motion, the rotational reference for memory disk testing.' },
+    { group: 'testing', slug: 'roundness-flatness', name: 'Roundness and flatness testing', desc: 'Runout, concentricity and squareness on IDs, ODs and faces, to one microinch.' },
+    { group: 'machining', slug: 'workheads', name: 'Machine tool workheads', desc: 'Face, turn and bore to better than ten microinches, with specular finishes.' },
+    { group: 'testing', slug: 'bearing-analysis', name: 'Bearing analysis', desc: 'Noise signature, runout and asynchronous error motion.' },
+    { group: 'motion', slug: 'pivots-indexers', name: 'Precision pivots and indexers', desc: 'Pneumo-lock fixes the rotor without introducing rotational error.' },
+    { group: 'motion', slug: 'optical-scanners', name: 'Optical scanner spindles', desc: 'High rotational accuracy, no torque ripple, low thermal excursion.' },
+    { group: 'machining', slug: 'grinding', name: 'Grinding spindles', desc: 'Minimal sub-surface damage, so less polishing afterwards.' },
   ],
   other: { title: 'Don’t see your application?', desc: 'Describe it in a quote request.', href: urls.quote },
 };
