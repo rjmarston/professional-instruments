@@ -1,6 +1,6 @@
 // About page copy. History facts come from the current History page and the "PICo" text;
 // names, dates and the Honeywell and Control Data reference are waiting on PI to confirm.
-import { site } from './site';
+import { urls } from './site';
 
 export const about = {
   seoTitle: 'About Professional Instruments | Air bearings since 1946',
@@ -52,6 +52,6 @@ export const about = {
       { year: '2011', event: 'ASPE', title: 'Flatstones' },
     ],
     text: 'The posters cover spindle error motion, grinding, turning and surface preparation, and the full set is free to read.',
-    cta: { label: 'Browse all posters', href: site.docs.posters },
+    cta: { label: 'Browse all posters', href: urls.posters },
   },
 };

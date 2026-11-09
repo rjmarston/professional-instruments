@@ -1,0 +1,269 @@
+---
+// One technical poster as a web page. The text and figures come from its Markdown file in
+// src/data/posters/, copied word for word from the poster; only the order and headings' case change.
+// Layout: the paper's header beside the original poster; then a contents rail, the text at reading
+// width and figures breaking out wider; then the products it covers and the other poster pages.
+import { getCollection, render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Button from '../../../components/Button.astro';
+import ArrowLink from '../../../components/ArrowLink.astro';
+import Arrow from '../../../components/Arrow.astro';
+import { posterList, postersPage } from '../../../data/poster-list';
+import { models } from '../../../data/models';
+import { site, urls } from '../../../data/site';
+
+export async function getStaticPaths() {
+  const posters = (await getCollection('posters')).sort((a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title));
+  return posters.map((poster) => ({ params: { slug: poster.id }, props: { poster, others: posters.filter((p) => p.id !== poster.id) } }));
+}
+
+const { poster, others } = Astro.props;
+const d = poster.data;
+const { Content, headings } = await render(poster);
+const sections = headings.filter((h) => h.depth === 2);
+const pdfOf = (file: string) => {
+  const listing = posterList.find((p) => p.file === file);
+  if (!listing) throw new Error(`No PDF listed for poster "${file}" in src/data/poster-list.ts`);
+  return listing.pdf;
+};
+const pdf = pdfOf(d.file);
+const thumb = `/images/posters/${poster.id}/poster.webp`;
+const products = d.products.map((sku) => models.find((m) => m.sku === sku)).filter((m) => m !== undefined);
+const plain = (html: string) => html.replace(/<[^>]+>/g, '');
+
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'ScholarlyArticle',
+  headline: d.title,
+  author: plain(d.authors).split(/,\s*|\s+and\s+/).filter(Boolean).map((name) => ({ '@type': 'Person', name: name.replace(/^and\s+/, '') })),
+  datePublished: String(d.year),
+  publisher: { '@type': 'Organization', name: site.name },
+  description: d.description,
+  image: new URL(thumb, Astro.site).toString(),
+  url: new URL(Astro.url.pathname, Astro.site).toString(),
+};
+---
+
+<Base title={d.title} description={d.description} active="resources" ogType="article" image={thumb} jsonLd={[article]}>
+  <article class="pa">
+    <header class="pa-h wrap">
+      <div class="in">
+        <div class="pa-ht">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a><span class="sep" aria-hidden="true">/</span>
+            <a href="/#resources">Resources</a><span class="sep" aria-hidden="true">/</span>
+            <a href={urls.posters}>{postersPage.title}</a>
+          </nav>
+          <h1>{d.title}</h1>
+          <p class="pa-au" set:html={d.authors} />
+          <ul class="pa-af">{d.affiliations.map((a) => <li set:html={a} />)}</ul>
+          {d.presented && <p class="pa-pr">{d.presented}</p>}
+          <div class="pa-b"><Button label="Open the poster (PDF)" href={pdf} kind="line" /></div>
+        </div>
+        <figure class:list={['pa-orig', { wide: d.thumb.width > d.thumb.height }]}>
+          <a class="frame" href={pdf} aria-label={`Open the original poster (PDF): ${d.title}`}>
+            <img src={thumb} alt={`The original poster, ${d.title}`} width={d.thumb.width} height={d.thumb.height} />
+          </a>
+          <dl class="pa-tb">
+            <div><dt>Event</dt><dd>{d.event}</dd></div>
+            <div><dt>Year</dt><dd>{d.year}</dd></div>
+            <div><dt>Original</dt><dd><a href={pdf}>PDF<Arrow /></a></dd></div>
+          </dl>
+        </figure>
+      </div>
+    </header>
+
+    <div class="pa-body wrap">
+      <div class="in pa-grid">
+        <nav class="pa-rail" aria-label="Sections of this poster">
+          <div class="pa-rail-in">
+            <p class="pa-rail-h">Contents</p>
+            <div class="pa-toc">
+              <span class="pa-track" aria-hidden="true"><span class="pa-ix"></span></span>
+              <ol>{sections.map((h) => <li><a href={`#${h.slug}`} data-sec={h.slug}>{h.text}</a></li>)}</ol>
+            </div>
+          </div>
+        </nav>
+        <div class="prose" data-prose><Content /></div>
+      </div>
+    </div>
+
+    {products.length > 0 && (
+      <aside class="pa-more wrap" aria-labelledby="pa-p-h">
+        <div class="in">
+          <h2 id="pa-p-h">Products in this poster</h2>
+          <ul class="pa-prod">
+            {products.map((m) => (
+              <li>
+                <span class="pa-prod-i"><img src={m.image.src} alt="" width={m.image.width} height={m.image.height} loading="lazy" /></span>
+                <span class="pa-prod-t"><span class="pa-prod-n">{m.name}</span><span class="pa-prod-d">{m.lede}</span></span>
+                <ArrowLink label={`View the ${m.sku}`} href={m.slug} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    )}
+
+    {others.length > 0 && (
+      <aside class="pa-more wrap" aria-labelledby="pa-o-h">
+        <div class="in">
+          <div class="pa-more-h"><h2 id="pa-o-h">More posters</h2><ArrowLink label="All technical posters" href={urls.posters} /></div>
+          <ul class="pa-others">
+            {others.map((o) => (
+              <li>
+                <a href={`${urls.posters}/${o.id}`}>
+                  <span class="pa-th"><img src={`/images/posters/${o.id}/poster.webp`} alt="" width={o.data.thumb.width} height={o.data.thumb.height} loading="lazy" /></span>
+                  <span class="pa-o-m">{o.data.event} {o.data.year}</span>
+                  <span class="pa-o-t">{o.data.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    )}
+  </article>
+</Base>
+
+<script>
+  // Contents rail: the section in view is marked, and a red index travels the track as you read.
+  const prose = document.querySelector<HTMLElement>('[data-prose]');
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.pa-toc a[data-sec]')];
+  const ix = document.querySelector<HTMLElement>('.pa-ix');
+  const track = document.querySelector<HTMLElement>('.pa-track');
+  if (prose && links.length && ix && track) {
+    const heads = links.map((a) => document.getElementById(a.dataset.sec!)).filter((h): h is HTMLElement => !!h);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const line = window.innerHeight * 0.3;
+      let cur = 0;
+      heads.forEach((h, i) => { if (h.getBoundingClientRect().top <= line) cur = i; });
+      links.forEach((a, i) => (i === cur ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+      const target = links[cur];
+      // The index sits beside the current section's link; with motion allowed it slides there.
+      const y = target.offsetTop + target.offsetHeight / 2 - ix.offsetHeight / 2;
+      ix.style.transform = `translateY(${Math.max(0, y).toFixed(1)}px)`;
+      ix.classList.toggle('still', reduce.matches);
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  }
+</script>
+
+<style is:global>
+/* header: the paper on the left, the original poster on the right */
+.pa-h .in{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:48px 96px;align-items:end;padding-block:40px 104px}
+.pa-ht{display:flex;flex-direction:column;min-width:0}
+.pa-h h1{margin:72px 0 0;max-width:20em;font-size:clamp(34px,3.7vw,56px);line-height:1.06;font-weight:500;letter-spacing:-.032em;text-wrap:balance;animation:rise .9s cubic-bezier(.2,0,0,1) .1s both}
+.pa-au{margin:36px 0 0;font-size:19px;line-height:1.5;animation:rise .9s cubic-bezier(.2,0,0,1) .2s both}
+.pa-af{list-style:none;margin:6px 0 0;padding:0;font-size:15px;line-height:1.6;color:var(--graphite)}
+.pa-pr{margin:24px 0 0;max-width:42em;padding-top:14px;border-top:.5px solid var(--hair);font-size:14px;line-height:1.6;color:var(--graphite)}
+.pa-b{margin-top:36px}
+.pa sup{font-size:.68em;line-height:0}
+.pa-orig{margin:0;display:flex;flex-direction:column;gap:0;min-width:0;justify-self:end;width:100%;max-width:400px;animation:fadein 1.2s ease .25s both}
+.pa-orig .frame{display:block;padding:14px;background-color:var(--white)}
+.pa-orig .frame img{display:block;width:100%;height:auto;aspect-ratio:auto;object-fit:contain;transition:opacity .2s ease}
+.pa-orig .frame:hover img{opacity:.88}
+/* A landscape poster can take more width. */
+.pa-orig.wide{max-width:520px}
+.pa-tb{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;border:.5px solid var(--rule);border-top:none}
+.pa-tb div{padding:10px 12px;min-width:0}
+.pa-tb div+div{border-left:.5px solid var(--rule)}
+.pa-tb dt{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--graphite)}
+.pa-tb dd{margin:4px 0 0;font-family:var(--mono);font-size:14px}
+.pa-tb a{display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+@media (prefers-reduced-motion:reduce){.pa-h h1,.pa-au,.pa-orig{animation:none}}
+@media (max-width:960px){
+  .pa-h .in{grid-template-columns:minmax(0,1fr);gap:48px;padding-bottom:64px}
+  .pa-h h1{margin-top:48px}
+  .pa-orig,.pa-orig.wide{justify-self:start;max-width:360px}
+}
+@media (max-width:640px){
+  .pa-orig{max-width:240px}
+  .pa-orig.wide{max-width:320px}
+}
+
+/* body: contents rail, then text at reading width with figures breaking out */
+.pa-grid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:0 80px;align-items:start}
+.pa-rail{position:sticky;top:32px;align-self:start}
+.pa-rail-in{display:flex;flex-direction:column;gap:16px;padding-top:6px}
+.pa-rail-h{margin:0;font-size:13px;font-weight:600}
+.pa-toc{position:relative;padding-left:18px}
+.pa-track{position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--hair)}
+.pa-ix{position:absolute;left:-.25px;top:0;width:1.5px;height:20px;background:var(--red);transition:transform .45s cubic-bezier(.2,0,0,1);will-change:transform}
+.pa-ix.still{transition:none}
+.pa-toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.pa-toc a{display:block;padding:6px 0;font-size:14px;line-height:1.35;color:var(--graphite);text-decoration:none;transition:color .18s ease}
+.pa-toc a:hover,.pa-toc a[aria-current]{color:var(--ink)}
+@media (max-width:1100px){.pa-grid{grid-template-columns:minmax(0,1fr)}.pa-rail{display:none}}
+
+.prose{display:grid;grid-template-columns:minmax(0,680px) minmax(0,1fr);font-size:17px;line-height:1.7}
+.prose > *{grid-column:1;min-width:0}
+.prose > :first-child{margin-top:0}
+.prose h2{margin:72px 0 18px;padding-top:16px;border-top:1px solid var(--ink);font-size:clamp(22px,2vw,28px);line-height:1.2;font-weight:500;letter-spacing:-.015em;scroll-margin-top:32px}
+.prose > h2:first-child{margin-top:0}
+.prose p{margin:0 0 20px}
+.prose i{margin-right:.12em}
+/* The abstract reads as the lead. */
+.prose > h2:first-child ~ p:not(h2:nth-of-type(2) ~ p){font-size:clamp(18px,1.5vw,21px);line-height:1.6}
+.prose ul{margin:0 0 20px;padding-left:1.2em}
+.prose li{margin:4px 0}
+.prose li::marker{color:var(--graphite)}
+.prose .pf{margin:48px 0;display:flex;flex-direction:column;gap:14px}
+.prose > .pf,.prose > .pf-row,.prose > .tbl-w{grid-column:1 / -1;max-width:960px}
+.prose > .pf.pf-narrow{grid-column:1;max-width:520px}
+.prose .pf img{display:block;width:100%;height:auto;border:.5px solid var(--hair);background:var(--white)}
+.prose .pf figcaption{max-width:680px;font-size:14px;line-height:1.6;color:var(--graphite)}
+.prose .fn{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--ink);margin-right:.4em}
+.prose .pf-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;margin:48px 0}
+.prose .pf-row .pf{margin:0}
+@media (max-width:640px){.prose .pf-row{grid-template-columns:minmax(0,1fr)}}
+.prose .pq{margin:40px 0;padding:4px 0 4px 28px;border-left:1px solid var(--ink)}
+.prose .pq p{margin:0;font-size:clamp(22px,2vw,28px);line-height:1.35;letter-spacing:-.015em}
+.prose .pq .pq-by{margin-top:12px;font-size:15px;letter-spacing:0;color:var(--graphite)}
+.prose .eq{position:relative;margin:32px 0;padding:22px 24px;overflow-x:auto;font-size:1.2em;text-align:center;border:.5px solid var(--hair);background:
+  linear-gradient(var(--ink),var(--ink)) 0 0/10px 1px no-repeat,linear-gradient(var(--ink),var(--ink)) 0 0/1px 10px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 100% 0/10px 1px no-repeat,linear-gradient(var(--ink),var(--ink)) 100% 0/1px 10px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 0 100%/10px 1px no-repeat,linear-gradient(var(--ink),var(--ink)) 0 100%/1px 10px no-repeat,
+  linear-gradient(var(--ink),var(--ink)) 100% 100%/10px 1px no-repeat,linear-gradient(var(--ink),var(--ink)) 100% 100%/1px 10px no-repeat}
+.prose .eq + .eq{margin-top:-12px}
+.prose .refs{list-style:none;margin:0;padding:0;font-size:14px;line-height:1.6;color:var(--graphite)}
+.prose .refs li{display:grid;grid-template-columns:3em minmax(0,1fr);margin:0;padding:8px 0;border-bottom:.5px solid var(--hair)}
+.prose .refs .rn{font-family:var(--mono);font-size:12px;color:var(--ink);padding-top:2px}
+.prose .tbl-w{margin:40px 0;overflow-x:auto}
+.prose .ptbl{width:100%;min-width:520px;border-collapse:collapse;font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}
+.prose .ptbl th,.prose .ptbl td{padding:12px 16px 12px 0;text-align:left;vertical-align:top;border-bottom:.5px solid var(--hair)}
+.prose .ptbl thead th{font-size:12px;font-weight:600;color:var(--graphite);border-bottom:1px solid var(--ink)}
+.prose .ptbl tbody th{font-weight:500}
+.prose .ptbl td{font-family:var(--mono);font-size:13px}
+@media (max-width:860px){.prose{grid-template-columns:minmax(0,1fr)}.prose > .pf.pf-narrow{max-width:420px}}
+
+/* after the paper: products it covers, then the other poster pages */
+.pa-more .in{padding-top:clamp(96px,10vw,144px);display:flex;flex-direction:column}
+.pa-more h2{margin:0;font-size:clamp(24px,2.2vw,32px);font-weight:500;letter-spacing:-.02em}
+.pa-more-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px 32px;padding-bottom:16px;border-bottom:1px solid var(--ink)}
+.pa-more > .in > h2{padding-bottom:16px;border-bottom:1px solid var(--ink)}
+.pa-more-h{margin-bottom:32px}
+.pa-prod{list-style:none;margin:0;padding:0}
+.pa-prod li{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:16px 32px;align-items:center;padding:20px 0;border-bottom:.5px solid var(--hair)}
+.pa-prod-i{display:flex;align-items:center;justify-content:center;height:96px}
+.pa-prod-i img{max-width:100%;max-height:96px;width:auto;height:auto}
+.pa-prod li .alink{align-self:center}
+.pa-prod-t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pa-prod-n{font-size:20px;font-weight:500;letter-spacing:-.015em}
+.pa-prod-d{font-size:15px;color:var(--graphite)}
+@media (max-width:640px){.pa-prod li{grid-template-columns:88px minmax(0,1fr)}.pa-prod li .alink{grid-column:2}.pa-prod-i{height:72px}.pa-prod-i img{max-height:72px}}
+.pa-others{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:40px 28px}
+.pa-others a{display:flex;flex-direction:column;gap:10px;text-decoration:none}
+.pa-th{display:flex;align-items:center;justify-content:center;aspect-ratio:3/4;padding:12px;background:var(--fog);border:.5px solid var(--hair);transition:border-color .2s ease}
+.pa-th img{max-width:100%;max-height:100%;width:auto;height:auto;box-shadow:0 1px 3px rgba(17,19,22,.12)}
+.pa-others a:hover .pa-th{border-color:var(--ink)}
+.pa-o-m{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--graphite)}
+.pa-o-t{font-size:15px;line-height:1.4;font-weight:500}
+.pa-others a:hover .pa-o-t{color:var(--red)}
+</style>

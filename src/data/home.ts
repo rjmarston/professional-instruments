@@ -150,6 +150,6 @@ export const resources = {
   title: 'Resources',
   items: [
     { title: 'Brochures and drawings', desc: 'The brochure and drawing for every standard model, in one library.', link: 'Open the library', href: '#' },
-    { title: 'Technical posters', desc: 'Spindle error motion, grinding, turning and surface preparation, most presented at ASPE and euspen meetings.', link: 'Browse posters', href: site.docs.posters },
+    { title: 'Technical posters', desc: 'Spindle error motion, grinding, turning and surface preparation, most presented at ASPE and euspen meetings.', link: 'Browse posters', href: urls.posters },
   ],
 };

@@ -46,6 +46,7 @@ export const urls = {
   about: '/about',
   contact: '/contact',
   quote: '/contact#quote',
+  posters: '/resources/posters',
 };
 
 export const applicationLinks = [
@@ -95,7 +96,7 @@ export const menus: Menu[] = [
     href: '/#resources',
     items: [
       { name: 'Brochures and drawings', href: '/#resources' },
-      { name: 'Technical posters', href: '/about#research' },
+      { name: 'Technical posters', href: urls.posters },
       { name: 'Videos', href: site.social.youtube },
     ],
   },
@@ -138,7 +139,7 @@ export const footerNav = [
     title: 'Resources',
     links: [
       { label: 'Brochures and drawings', href: '/#resources' },
-      { label: 'Posters', href: '/about#research' },
+      { label: 'Posters', href: urls.posters },
       { label: 'Videos', href: site.social.youtube },
     ],
   },

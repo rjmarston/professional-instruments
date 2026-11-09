@@ -13,6 +13,8 @@ The new airbearings.com for Professional Instruments Company: air bearing spindl
 | Product hub copy and every model's specs | `src/data/products.ts` |
 | Model pages: one file per model (figures, copy, images, related models) | `src/data/models/` (listed in `index.ts`) |
 | The model page layout | `src/components/products/ModelPage.astro` |
+| Technical posters: the full list (all 87) | `src/data/poster-list.ts` |
+| Technical posters with their own page: one Markdown file each, text copied word for word from the poster | `src/data/posters/` (figures in `public/images/posters/`) |
 | About and Contact copy, quote form options | `src/data/about.ts`, `src/data/contact.ts` |
 | Colors and fonts | `src/styles/tokens.css` |
 | Shared styles: layout, buttons, section heads, rules, figures, lists | `src/styles/global.css` |
@@ -29,6 +31,8 @@ The new airbearings.com for Professional Instruments Company: air bearing spindl
 | `/products/blockhead/3r`, `/4b`, `/4r`, `/4r-225`, `/10b`, `/10r`, `/10r-606` | Blockhead model pages |
 | `/products/iso/iso-2-25`, `/iso-3r-db400`, `/iso-3-375pg`, `/iso-5-5f`, `/iso-5-5pg` | ISO model pages |
 | `/products/4rh-oil-hydrostatic`, `/products/flatstones` | 4RH and GF-5 Flatstones |
+| `/resources/posters` | Every technical poster, by year |
+| `/resources/posters/<name>` | A poster as a web page (six so far) |
 | `/about` | Who we are, history, the shop, technical posters |
 | `/contact` | Contact details and the quote form |
 
@@ -70,6 +74,7 @@ rjmarston.com has to be in the same Cloudflare account for the custom domains to
 
 - **Quote form.** It checks the fields and shows a confirmation, but doesn't send anywhere. Who receives quote requests is a question for PI. Then add a handler (for example a Cloudflare Worker that emails sales@airbearings.com).
 - **Model pages.** Every standard model, the 4RH and the GF-5 Flatstones have a page, built from the brochures. Family pages (`/products/blockhead`, `/products/iso`) and an Attachments page aren't built; the family addresses redirect to the products page. ISO 5.5F and 5.5PG are two pages until PI decides whether they should be one.
+- **Technical posters.** Six of the 87 have their own page (a pilot); the rest link to their PDF on Google Drive. To add one, copy its text word for word into a new Markdown file in `src/data/posters/` and crop its figures into `public/images/posters/<name>/`. The 2018 Blockhead history poster says PI was established in 1947; the rest of the site says 1946. Poster text is kept as printed, so a few posters use "BLOCK-HEAD", "porous graphite" or "&" where the site's own copy wouldn't.
 - **Linear slides.** "Slides" is left out of the homepage headline, site description and About until PI confirms they are still offered. The history and shop text still mention them as past products and in-house equipment.
 - **Pages linked as "not built yet".** Application pages, the two service pages, the brochure library and the privacy policy. Links to them use `#` and show a short notice.
 - **Documents.** Brochures, drawings, the operator's manual, terms and the posters are still on Google Drive. Host them on this site when the library is built.

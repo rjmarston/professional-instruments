@@ -1,0 +1,65 @@
+---
+// Every technical poster, newest first, grouped by year. Posters with their own page link there;
+// the rest link to their PDF on Google Drive.
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import PageHead from '../../../components/PageHead.astro';
+import Arrow from '../../../components/Arrow.astro';
+import { posterList, postersPage } from '../../../data/poster-list';
+import { urls } from '../../../data/site';
+
+const pages = new Map((await getCollection('posters')).map((p) => [p.data.file, `${urls.posters}/${p.id}`]));
+const years = [...new Set(posterList.map((p) => p.year))].sort((a, b) => b - a);
+const byYear = years.map((y) => ({ year: y, posters: posterList.filter((p) => p.year === y) }));
+---
+
+<Base title={postersPage.seoTitle} description={postersPage.seoDescription} active="resources">
+  <PageHead title={postersPage.title} lede={postersPage.lede} crumbs={[{ label: 'Home', href: '/' }, { label: 'Resources', href: '/#resources' }, { label: postersPage.title }]} />
+  <section class="sec sec-first wrap" aria-label="All posters">
+    <div class="in">
+      <div class="pl">
+        {byYear.map((g) => (
+          <section class="pl-y" aria-labelledby={`y-${g.year}`}>
+            <h2 id={`y-${g.year}`}>{g.year}</h2>
+            <ul>
+              {g.posters.map((p) => {
+                const page = pages.get(p.file);
+                return (
+                  <li class:list={{ has: page }}>
+                    <span class="pl-e">{p.event}</span>
+                    {page ? <a class="pl-t" href={page}>{p.title}</a> : <a class="pl-t" href={p.pdf}>{p.title}</a>}
+                    <span class="pl-k">
+                      {page ? <a href={page} aria-label={`${postersPage.readLabel}: ${p.title}`}>{postersPage.readLabel}<Arrow /></a> : null}
+                      <a href={p.pdf} aria-label={`${postersPage.pdfLabel}: ${p.title}`}>{postersPage.pdfLabel}<Arrow /></a>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+.pl{display:flex;flex-direction:column;gap:56px}
+.pl-y{display:grid;grid-template-columns:minmax(0,160px) minmax(0,1fr);gap:24px;align-items:start}
+.pl-y h2{margin:0;padding-top:14px;font-family:var(--mono);font-size:15px;font-weight:400;letter-spacing:.02em;color:var(--graphite)}
+.pl-y ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.pl-y li{display:grid;grid-template-columns:5.5em minmax(0,1fr) auto;gap:8px 24px;align-items:baseline;padding:14px 0;border-bottom:.5px solid var(--hair)}
+.pl-e{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--graphite)}
+.pl-t{font-size:16px;line-height:1.45;text-decoration:none}
+.pl-y li.has .pl-t{font-weight:500}
+.pl-t:hover{color:var(--red)}
+.pl-k{display:flex;gap:18px;white-space:nowrap}
+.pl-k a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.02em;text-decoration:none;color:var(--graphite)}
+.pl-k a:hover{color:var(--red)}
+@media (max-width:760px){
+  .pl-y{grid-template-columns:minmax(0,1fr);gap:8px}
+  .pl-y h2{padding-top:0}
+  .pl-y li{grid-template-columns:minmax(0,1fr)}
+  .pl-k{justify-content:flex-start}
+}
+</style>
